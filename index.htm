@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
+      <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0071e3">
 <meta charset="UTF-8">
 
 <!-- 防止雙點放大，但保留雙指縮放 -->
@@ -269,6 +271,12 @@ function highlight(){
 }
 highlight();
 </script>
-
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js");
+  });
+}
+</script>
 </body>
 </html>
