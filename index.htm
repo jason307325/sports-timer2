@@ -29,7 +29,6 @@
             justify-content: center;
         }
 
-        /* 關鍵：使用 svh 確保不被瀏覽器網址列遮擋 */
         .container {
             width: 100%;
             max-width: 500px;
@@ -41,18 +40,19 @@
             padding: 10px 15px env(safe-area-inset-bottom);
         }
 
-        header { text-align: center; padding: 5px 0; }
+        header { text-align: center; padding: 2px 0; }
         h2 { margin: 5px 0 2px 0; font-size: 18px; color: #1c1c1e; }
-        .hint-text { font-size: 13px; color: var(--apple-blue); margin-bottom: 8px; font-weight: 500; }
+        .hint-text { font-size: 13px; color: var(--apple-blue); margin-bottom: 10px; font-weight: 500; }
 
-        /* --- 輸入顯示區 --- */
+        /* --- 輸入區：拉高高度 --- */
         .input-section {
             background: #ffffff;
-            padding: 8px;
+            padding: 12px;
             border-radius: 12px;
             border: 2px solid #e5e5ea;
             transition: all 0.3s ease;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
         .input-section.editing-active { border-color: var(--apple-orange); background: #fff9f0; }
         
@@ -62,7 +62,7 @@
             border-radius: 4px;
             font-size: 11px;
             font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             background: var(--apple-gray);
             color: white;
         }
@@ -72,58 +72,63 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 28px;
+            font-size: 32px; /* 增大輸入文字 */
             font-variant-numeric: tabular-nums;
         }
         .time {
-            width: 60px;
+            width: 70px;
+            height: 60px; /* 拉高輸入格高度 */
+            line-height: 60px; /* 文字置中 */
             text-align: center;
             border: 2px solid #d1d1d6;
-            border-radius: 8px;
-            padding: 4px;
+            border-radius: 12px;
             background: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .time.active { border-color: var(--apple-blue); background: #eef3ff; }
-        .sep { margin: 0 4px; font-weight: bold; color: #aeaeb2; }
+        .time.active { 
+            border-color: var(--apple-blue); 
+            background: #eef3ff;
+            box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+        }
+        .sep { margin: 0 6px; font-weight: bold; color: #aeaeb2; font-size: 24px; }
 
-        /* --- 紀錄表格區 (彈性縮放) --- */
+        /* --- 紀錄表格區 --- */
         .table-container {
-            flex: 1; /* 自動填滿剩餘空間 */
+            flex: 1;
             overflow-y: auto;
             border: 1px solid #e5e5ea;
             border-radius: 10px;
             margin-bottom: 10px;
         }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f9f9f9; color: #8e8e93; font-size: 12px; padding: 8px 5px; position: sticky; top: 0; z-index: 10; }
-        td { padding: 10px 5px; text-align: center; border-bottom: 1px solid #f2f2f7; font-size: 14px; }
+        th { background: #f9f9f9; color: #8e8e93; font-size: 12px; padding: 8px 5px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #eee; }
+        td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #f2f2f7; font-size: 14px; }
         
         .time-cell {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 600;
             color: var(--apple-blue);
             text-decoration: underline;
             cursor: pointer;
         }
         tr.is-editing { background-color: #fff9f0 !important; }
-        tr.is-editing .time-cell { color: var(--apple-orange); }
 
         .diff-plus { color: #ff3b30; font-weight: bold; }
         .diff-minus { color: #34c759; font-weight: bold; }
 
-        /* --- 按鈕與鍵盤區 (固定在底部) --- */
+        /* --- 按鈕與鍵盤區 --- */
         .actions { display: flex; gap: 8px; margin-bottom: 8px; }
         .actions button {
-            flex: 1; padding: 12px; border: none; border-radius: 10px;
-            font-size: 15px; font-weight: bold;
+            flex: 1; padding: 14px; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: bold;
         }
         .btn-main { background: var(--apple-blue); color: #fff; }
         .btn-main.is-edit { background: var(--apple-orange); }
         .btn-clear { background: var(--apple-gray); color: #fff; }
 
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .keypad button {
-            font-size: 24px; padding: 12px 0; border: none; border-radius: 10px;
+            font-size: 26px; padding: 15px 0; border: none; border-radius: 14px;
             background: #e5e5ea; color: #1c1c1e; font-weight: 500;
         }
         .keypad button:active { background: #c7c7cc; }
@@ -177,7 +182,7 @@
 
 <script>
 const fields = ["min", "sec", "ms"];
-let currentIdx = 1; // 預設聚焦在「秒」
+let currentIdx = 0; // 預設聚焦在「分」
 let records = [];
 let editingId = null;
 
@@ -191,6 +196,7 @@ function bind(el, cb) {
     el.addEventListener('click', cb);
 }
 
+// 使用者可以從任一格開始填寫
 fields.forEach((id, idx) => {
     bind(document.getElementById(id), () => { currentIdx = idx; highlight(); });
 });
@@ -215,10 +221,13 @@ function highlight() {
 function inputNum(n) {
     let f = document.getElementById(fields[currentIdx]);
     if (f.textContent === "00") f.textContent = "";
+    
     if (f.textContent.length < 2) {
         f.textContent += n;
-        if (f.textContent.length === 2 && currentIdx < 2) {
-            currentIdx++;
+        // 自動往下一格跳
+        if (f.textContent.length === 2) {
+            // 循環邏輯：0->1->2->0
+            currentIdx = (currentIdx + 1) % 3;
             highlight();
         }
     }
@@ -230,7 +239,12 @@ function backspace() {
         f.textContent = f.textContent.slice(0, -1);
         if (f.textContent === "") f.textContent = "00";
     } else if (currentIdx > 0) {
+        // 退格時往回跳一格
         currentIdx--;
+        highlight();
+    } else {
+        // 最前一格退格循環到最後一格
+        currentIdx = 2;
         highlight();
     }
 }
@@ -280,12 +294,14 @@ function enterEditMode(record) {
     document.getElementById("min").textContent = m.toString().padStart(2, "0");
     document.getElementById("sec").textContent = s.toString().padStart(2, "0");
     document.getElementById("ms").textContent = ms.toString().padStart(2, "0");
+    
     statusBadge.textContent = "編輯模式";
     statusBadge.classList.add("edit");
     inputUI.classList.add("editing-active");
     btnSave.textContent = "💾 儲存修改";
     btnSave.classList.add("is-edit");
-    currentIdx = 1;
+    
+    currentIdx = 0; // 修改時從「分」開始
     highlight();
     refreshUI();
 }
@@ -307,7 +323,7 @@ function format(sec) {
 
 function clearInput() {
     fields.forEach(id => document.getElementById(id).textContent = "00");
-    currentIdx = 1;
+    currentIdx = 0; // 重置後回到第一格
     highlight();
 }
 
