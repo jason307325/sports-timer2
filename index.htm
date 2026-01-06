@@ -13,7 +13,7 @@
             touch-action: manipulation;
             -webkit-user-select: none;
             user-select: none;
-            overscroll-behavior: none; /* 防止下拉重新整理影響操作 */
+            overscroll-behavior: none;
         }
 
         body {
@@ -67,10 +67,10 @@
 
         .sep { margin: 0 4px; font-weight: bold; color: #86868b; }
 
-        /* --- 2. 紀錄表格區域 (移至中間) --- */
+        /* --- 2. 紀錄表格區域 --- */
         .table-container {
             flex-grow: 1;
-            max-height: 250px; /* 限制高度，確保鍵盤在螢幕內 */
+            max-height: 250px;
             overflow-y: auto;
             margin-bottom: 15px;
             border: 1px solid #eee;
@@ -94,7 +94,7 @@
         .diff-plus { color: #d70015; font-weight: bold; }
         .diff-minus { color: #008026; font-weight: bold; }
 
-        /* --- 3. 控制按鈕與鍵盤 (移至下方) --- */
+        /* --- 3. 下方操作區 --- */
         .actions {
             display: flex;
             gap: 8px;
@@ -116,6 +116,7 @@
         .add { background: #0071e3; color: #fff; }
         .clear-all { background: #86868b; color: #fff; }
 
+        /* 計算機風格鍵盤排列 */
         .keypad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -147,7 +148,7 @@
 <div class="container">
     <h2>🏊 分段秒差計算器</h2>
 
-    <!-- 1. 上方：時間輸入顯示 -->
+    <!-- 輸入欄位 -->
     <div class="time-box">
         <div id="min" class="time">00</div>
         <span class="sep">:</span>
@@ -156,7 +157,7 @@
         <div id="ms" class="time">00</div>
     </div>
 
-    <!-- 2. 中間：紀錄表格 -->
+    <!-- 紀錄表格 -->
     <div class="table-container">
         <table>
             <thead>
@@ -171,22 +172,26 @@
         </table>
     </div>
 
-    <!-- 3. 下方：操作按鈕與鍵盤 -->
+    <!-- 清除與新增按鈕 -->
     <div class="actions">
         <button class="add" id="btn-add">✓ 新增紀錄</button>
         <button class="clear-all" id="btn-clear">🗑 清除</button>
     </div>
 
+    <!-- 計算機式鍵盤 (7-8-9 在上) -->
     <div class="keypad" id="keypad">
-        <button data-val="1">1</button>
-        <button data-val="2">2</button>
-        <button data-val="3">3</button>
-        <button data-val="4">4</button>
-        <button data-val="5">5</button>
-        <button data-val="6">6</button>
         <button data-val="7">7</button>
         <button data-val="8">8</button>
         <button data-val="9">9</button>
+        
+        <button data-val="4">4</button>
+        <button data-val="5">5</button>
+        <button data-val="6">6</button>
+        
+        <button data-val="1">1</button>
+        <button data-val="2">2</button>
+        <button data-val="3">3</button>
+        
         <button class="delete" data-val="del">⌫</button>
         <button data-val="0">0</button>
         <button class="action" data-val="add">✓</button>
@@ -199,19 +204,17 @@ let current = 0;
 let records = [];
 const tbody = document.getElementById("tbody");
 
-// 零延遲點擊核心邏輯
+// 零延遲處理
 function bindFastClick(el, callback) {
     el.addEventListener('touchstart', function(e) {
         e.preventDefault();
         callback();
     }, { passive: false });
-
     el.addEventListener('click', function(e) {
         callback();
     });
 }
 
-// 初始化時間欄位點擊
 fields.forEach((id, idx) => {
     bindFastClick(document.getElementById(id), () => {
         current = idx;
@@ -219,7 +222,6 @@ fields.forEach((id, idx) => {
     });
 });
 
-// 初始化數字鍵盤
 document.querySelectorAll('#keypad button').forEach(btn => {
     bindFastClick(btn, () => {
         const val = btn.getAttribute('data-val');
@@ -229,7 +231,6 @@ document.querySelectorAll('#keypad button').forEach(btn => {
     });
 });
 
-// 初始化功能按鈕
 bindFastClick(document.getElementById('btn-add'), addRecord);
 bindFastClick(document.getElementById('btn-clear'), clearAll);
 
@@ -281,7 +282,6 @@ function addRecord() {
     records.push({ total, split });
     updateTable();
     
-    // 重置輸入，焦點回到「秒」以便快速輸入下一段（或回到分，視習慣而定）
     fields.forEach(id => document.getElementById(id).textContent = "00");
     current = 0; 
     highlight();
@@ -291,12 +291,17 @@ function clearAll() {
     if (confirm("確定清除所有紀錄？")) {
         records = [];
         updateTable();
+        fields.forEach(id => document.getElementById(id).textContent = "00");
+        current = 0;
+        highlight();
     }
 }
 
 function updateTable() {
     tbody.innerHTML = "";
-    records.forEach((r, i) => {
+    // 最新的紀錄顯示在最上方
+    for (let i = records.length - 1; i >= 0; i--) {
+        let r = records[i];
         let diff = "-", cls = "";
         if (i > 0) {
             let d = r.split - records[i-1].split;
@@ -312,14 +317,13 @@ function updateTable() {
         let ss = (r.split % 60).toFixed(2);
         let ss_str = `${sm.toString().padStart(2, "0")}:${ss.padStart(5, "0")}`;
 
-        const row = `<tr>
+        tbody.innerHTML += `<tr>
             <td>${i + 1}</td>
             <td>${ts}</td>
             <td>${ss_str}</td>
             <td class="${cls}">${diff}</td>
         </tr>`;
-        tbody.insertAdjacentHTML('afterbegin', row); // 新紀錄顯示在最上方
-    });
+    }
 }
 
 highlight();
