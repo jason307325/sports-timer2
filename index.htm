@@ -44,7 +44,6 @@
         h2 { margin: 2px 0; font-size: 16px; color: #1c1c1e; }
         .hint-text { font-size: 11px; color: var(--apple-blue); margin-bottom: 5px; font-weight: 500; }
 
-        /* --- 輸入區：高度微調 --- */
         .input-section {
             background: #ffffff;
             padding: 8px;
@@ -73,21 +72,26 @@
         }
         .time {
             width: 60px;
-            height: 48px; /* 稍微縮小輸入格高度 */
+            height: 48px;
             line-height: 48px;
             text-align: center;
             border: 2px solid #d1d1d6;
             border-radius: 10px;
             background: white;
+            transition: all 0.2s;
         }
         .time.active { 
             border-color: var(--apple-blue); 
             background: #eef3ff;
             box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
         }
+        /* 修改中的視覺提示 */
+        .time.will-replace {
+            color: var(--apple-orange);
+            background: #fff9f0;
+        }
         .sep { margin: 0 4px; font-weight: bold; color: #aeaeb2; font-size: 20px; }
 
-        /* --- 紀錄表格區：確保可容納至少 8 筆 --- */
         .table-container {
             flex: 1;
             overflow-y: auto;
@@ -97,7 +101,7 @@
         }
         table { width: 100%; border-collapse: collapse; }
         th { background: #f9f9f9; color: #8e8e93; font-size: 11px; padding: 6px 2px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #eee; }
-        td { padding: 8px 2px; text-align: center; border-bottom: 1px solid #f2f2f7; font-size: 13px; line-height: 1.2; }
+        td { padding: 8px 2px; text-align: center; border-bottom: 1px solid #f2f2f7; font-size: 13px; }
         
         .time-cell {
             font-size: 14px;
@@ -110,7 +114,6 @@
         .diff-plus { color: #ff3b30; font-weight: bold; }
         .diff-minus { color: #34c759; font-weight: bold; }
 
-        /* --- 鍵盤與按鈕區：極簡縮小化 --- */
         .actions { display: flex; gap: 6px; margin-bottom: 6px; }
         .actions button {
             flex: 1; padding: 10px; border: none; border-radius: 8px;
@@ -122,8 +125,8 @@
 
         .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .keypad button {
-            font-size: 20px; /* 縮小按鈕字體 */
-            padding: 10px 0; /* 縮小按鈕垂直高度 */
+            font-size: 20px;
+            padding: 10px 0;
             border: none; border-radius: 10px;
             background: #e5e5ea; color: #1c1c1e; font-weight: 500;
         }
@@ -137,7 +140,7 @@
 <div class="container">
     <header>
         <h2>🏊 分段秒差計算器</h2>
-        <div class="hint-text">💡 修正秒數：請點擊表格中的「總時間」</div>
+        <div class="hint-text">💡 修正時間：點擊表格「總時間」直接打數字覆蓋</div>
     </header>
 
     <div class="input-section" id="input-ui">
@@ -181,10 +184,10 @@ const fields = ["min", "sec", "ms"];
 let currentIdx = 0;
 let records = [];
 let editingId = null;
+let isFirstKeyInField = true; // 追蹤是否為該格的第一個數字，用於「直接覆蓋」
 
 const tbody = document.getElementById("tbody");
 const btnSave = document.getElementById('btn-save');
-const inputUI = document.getElementById('input-ui');
 const statusBadge = document.getElementById('status-badge');
 
 function bind(el, cb) {
@@ -193,7 +196,11 @@ function bind(el, cb) {
 }
 
 fields.forEach((id, idx) => {
-    bind(document.getElementById(id), () => { currentIdx = idx; highlight(); });
+    bind(document.getElementById(id), () => { 
+        currentIdx = idx; 
+        isFirstKeyInField = true; // 點擊某格後，下次按數字會覆蓋
+        highlight(); 
+    });
 });
 
 document.querySelectorAll('#keypad button').forEach(btn => {
@@ -209,31 +216,45 @@ bind(btnSave, saveRecord);
 bind(document.getElementById('btn-clear'), clearAll);
 
 function highlight() {
-    fields.forEach(id => document.getElementById(id).classList.remove("active"));
-    document.getElementById(fields[currentIdx]).classList.add("active");
+    fields.forEach((id, idx) => {
+        const el = document.getElementById(id);
+        el.classList.remove("active", "will-replace");
+        if(idx === currentIdx) {
+            el.classList.add("active");
+            if(isFirstKeyInField) el.classList.add("will-replace");
+        }
+    });
 }
 
 function inputNum(n) {
     let f = document.getElementById(fields[currentIdx]);
-    if (f.textContent === "00") f.textContent = "";
-    if (f.textContent.length < 2) {
-        f.textContent += n;
-        if (f.textContent.length === 2) {
-            currentIdx = (currentIdx + 1) % 3;
-            highlight();
+    
+    if (isFirstKeyInField) {
+        // 直接覆蓋舊數字
+        f.textContent = n;
+        isFirstKeyInField = false;
+    } else {
+        // 輸入第二個數字
+        if (f.textContent.length < 2) {
+            f.textContent += n;
         }
+    }
+
+    // 只要滿兩位數，自動跳下一格並設定為「待覆蓋」狀態
+    if (f.textContent.length === 2) {
+        currentIdx = (currentIdx + 1) % 3;
+        isFirstKeyInField = true;
+        highlight();
+    } else {
+        highlight();
     }
 }
 
 function backspace() {
     let f = document.getElementById(fields[currentIdx]);
-    if (f.textContent !== "00" && f.textContent.length > 0) {
-        f.textContent = f.textContent.slice(0, -1);
-        if (f.textContent === "") f.textContent = "00";
-    } else {
-        currentIdx = (currentIdx === 0) ? 2 : currentIdx - 1;
-        highlight();
-    }
+    f.textContent = "00";
+    isFirstKeyInField = true;
+    highlight();
 }
 
 function saveRecord() {
@@ -278,14 +299,18 @@ function enterEditMode(record) {
     const m = Math.floor(record.total / 60);
     const s = Math.floor(record.total % 60);
     const ms = Math.round((record.total % 1) * 100);
+    
     document.getElementById("min").textContent = m.toString().padStart(2, "0");
     document.getElementById("sec").textContent = s.toString().padStart(2, "0");
     document.getElementById("ms").textContent = ms.toString().padStart(2, "0");
+    
     statusBadge.textContent = "編輯模式";
     statusBadge.classList.add("edit");
     btnSave.textContent = "💾 儲存修改";
     btnSave.classList.add("is-edit");
+    
     currentIdx = 0;
+    isFirstKeyInField = true; // 進入編輯模式，點第一格時直接覆蓋
     highlight();
     refreshUI();
 }
@@ -307,6 +332,7 @@ function format(sec) {
 function clearInput() {
     fields.forEach(id => document.getElementById(id).textContent = "00");
     currentIdx = 0;
+    isFirstKeyInField = true;
     highlight();
 }
 
