@@ -1,95 +1,203 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>運動計時輸入</title>
+<title>選手分段秒差計算器</title>
 
 <style>
 body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
-    background:#f2f4f8;
+    background:#f5f5f7;
     padding:20px;
 }
 .container{
-    max-width:360px;
+    max-width:620px;
     margin:auto;
     background:#fff;
     padding:20px;
     border-radius:14px;
-    box-shadow:0 4px 12px rgba(0,0,0,.1);
-    text-align:center;
+    box-shadow:0 4px 8px rgba(0,0,0,.1);
 }
-h1{margin-bottom:20px}
+h2{text-align:center}
+
 .time-box{
     display:flex;
     justify-content:center;
     align-items:center;
-    font-size:28px;
+    font-size:32px;
+    margin:15px 0;
 }
-.time-box input{
-    width:70px;
-    font-size:28px;
+.time{
+    width:80px;
     text-align:center;
+    border:2px solid #ccc;
+    border-radius:8px;
     padding:6px;
 }
-.separator{
-    margin:0 6px;
-    font-weight:bold;
+.sep{margin:0 6px;font-weight:bold}
+
+.keypad{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin:15px 0;
 }
-.note{
-    margin-top:15px;
-    font-size:14px;
-    color:#666;
+.keypad button{
+    font-size:26px;
+    padding:18px 0;
+    border:none;
+    border-radius:12px;
+    background:#eef3ff;
 }
+.keypad .action{background:#0071e3;color:#fff}
+.keypad .delete{background:#d70015;color:#fff}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+th,td{
+    padding:10px;
+    text-align:center;
+    border-bottom:1px solid #eee;
+}
+th{background:#fafafa;color:#888}
+
+.diff-plus{color:#d70015}
+.diff-minus{color:#008026}
 </style>
 </head>
 
 <body>
 <div class="container">
-<h1>⏱ 成績輸入</h1>
 
+<h2>🏊 選手分段秒差計算器</h2>
+
+<!-- 固定時間輸入 -->
 <div class="time-box">
-    <input id="min" type="text" maxlength="2" placeholder="00">
-    <span class="separator">:</span>
-    <input id="sec" type="text" maxlength="2" placeholder="00">
-    <span class="separator">.</span>
-    <input id="ms" type="text" maxlength="2" placeholder="00">
+    <div id="min" class="time">00</div>
+    <span class="sep">:</span>
+    <div id="sec" class="time">00</div>
+    <span class="sep">.</span>
+    <div id="ms" class="time">00</div>
 </div>
 
-<div class="note">
-請依序輸入「分 → 秒 → 百分秒」
+<!-- 十二宮格 -->
+<div class="keypad">
+    <button onclick="inputNum(1)">1</button>
+    <button onclick="inputNum(2)">2</button>
+    <button onclick="inputNum(3)">3</button>
+    <button onclick="inputNum(4)">4</button>
+    <button onclick="inputNum(5)">5</button>
+    <button onclick="inputNum(6)">6</button>
+    <button onclick="inputNum(7)">7</button>
+    <button onclick="inputNum(8)">8</button>
+    <button onclick="inputNum(9)">9</button>
+    <button class="delete" onclick="backspace()">⌫</button>
+    <button onclick="inputNum(0)">0</button>
+    <button class="action" onclick="addRecord()">✓</button>
 </div>
+
+<table>
+<thead>
+<tr>
+    <th>段次</th>
+    <th>總時間</th>
+    <th>分段秒數</th>
+    <th>秒差</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+
 </div>
 
 <script>
-const min = document.getElementById("min");
-const sec = document.getElementById("sec");
-const ms  = document.getElementById("ms");
+const fields=["min","sec","ms"];
+let current=0;
+let records=[];
 
-function onlyNumber(e){
-    e.target.value = e.target.value.replace(/[^0-9]/g,'');
-}
+function field(){return document.getElementById(fields[current]);}
 
-function autoJump(current, next){
-    if(current.value.length === current.maxLength){
-        next.focus();
+function inputNum(n){
+    let f=field();
+    if(f.textContent==="00") f.textContent="";
+    if(f.textContent.length<2){
+        f.textContent+=n;
+        if(f.textContent.length===2 && current<2) current++;
     }
+    highlight();
 }
 
-min.addEventListener("input", e=>{
-    onlyNumber(e);
-    autoJump(min, sec);
-});
+function backspace(){
+    let f=field();
+    if(f.textContent.length>0){
+        f.textContent=f.textContent.slice(0,-1);
+    }else if(current>0){
+        current--; backspace();
+    }
+    highlight();
+}
 
-sec.addEventListener("input", e=>{
-    onlyNumber(e);
-    autoJump(sec, ms);
-});
+function clearTime(){
+    fields.forEach(id=>document.getElementById(id).textContent="00");
+    current=0;
+    highlight();
+}
 
-ms.addEventListener("input", e=>{
-    onlyNumber(e);
-});
+function timeToSec(){
+    return parseInt(min.textContent)*60
+        + parseInt(sec.textContent)
+        + parseInt(ms.textContent)/100;
+}
+
+function secToTime(sec){
+    let m=Math.floor(sec/60);
+    let s=(sec%60).toFixed(2);
+    return `${m.toString().padStart(2,"0")}:${s.padStart(5,"0")}`;
+}
+
+function addRecord(){
+    if(records.length>=30) return;
+    let total=timeToSec();
+    if(total===0) return;
+
+    let split=total;
+    if(records.length>0)
+        split=total-records.at(-1).total;
+
+    records.push({total,split});
+    updateTable();
+    clearTime();
+}
+
+function updateTable(){
+    tbody.innerHTML="";
+    records.forEach((r,i)=>{
+        let diff="-",cls="";
+        if(i>0){
+            let d=r.split-records[i-1].split;
+            diff=(d>0?"+":"")+d.toFixed(2)+"s";
+            cls=d>0?"diff-plus":"diff-minus";
+        }
+        tbody.innerHTML+=`
+        <tr>
+            <td>${i+1}</td>
+            <td>${secToTime(r.total)}</td>
+            <td>${secToTime(r.split)}</td>
+            <td class="${cls}">${diff}</td>
+        </tr>`;
+    });
+}
+
+function highlight(){
+    fields.forEach(id=>document.getElementById(id).style.borderColor="#ccc");
+    field().style.borderColor="#0071e3";
+}
+highlight();
 </script>
+
 </body>
 </html>
