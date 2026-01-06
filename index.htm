@@ -37,32 +37,28 @@
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
-            padding: 10px 15px env(safe-area-inset-bottom);
+            padding: 8px 12px env(safe-area-inset-bottom);
         }
 
         header { text-align: center; padding: 2px 0; }
-        h2 { margin: 5px 0 2px 0; font-size: 18px; color: #1c1c1e; }
-        .hint-text { font-size: 13px; color: var(--apple-blue); margin-bottom: 10px; font-weight: 500; }
+        h2 { margin: 2px 0; font-size: 16px; color: #1c1c1e; }
+        .hint-text { font-size: 11px; color: var(--apple-blue); margin-bottom: 5px; font-weight: 500; }
 
-        /* --- 輸入區：拉高高度 --- */
+        /* --- 輸入區：高度微調 --- */
         .input-section {
             background: #ffffff;
-            padding: 12px;
-            border-radius: 12px;
-            border: 2px solid #e5e5ea;
-            transition: all 0.3s ease;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            padding: 8px;
+            border-radius: 10px;
+            border: 1.5px solid #e5e5ea;
+            margin-bottom: 6px;
         }
-        .input-section.editing-active { border-color: var(--apple-orange); background: #fff9f0; }
-        
         .status-badge {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 1px 6px;
             border-radius: 4px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             background: var(--apple-gray);
             color: white;
         }
@@ -72,63 +68,63 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 32px; /* 增大輸入文字 */
+            font-size: 26px;
             font-variant-numeric: tabular-nums;
         }
         .time {
-            width: 70px;
-            height: 60px; /* 拉高輸入格高度 */
-            line-height: 60px; /* 文字置中 */
+            width: 60px;
+            height: 48px; /* 稍微縮小輸入格高度 */
+            line-height: 48px;
             text-align: center;
             border: 2px solid #d1d1d6;
-            border-radius: 12px;
+            border-radius: 10px;
             background: white;
-            transition: border-color 0.2s, box-shadow 0.2s;
         }
         .time.active { 
             border-color: var(--apple-blue); 
             background: #eef3ff;
-            box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+            box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
         }
-        .sep { margin: 0 6px; font-weight: bold; color: #aeaeb2; font-size: 24px; }
+        .sep { margin: 0 4px; font-weight: bold; color: #aeaeb2; font-size: 20px; }
 
-        /* --- 紀錄表格區 --- */
+        /* --- 紀錄表格區：確保可容納至少 8 筆 --- */
         .table-container {
             flex: 1;
             overflow-y: auto;
             border: 1px solid #e5e5ea;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
         }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f9f9f9; color: #8e8e93; font-size: 12px; padding: 8px 5px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #eee; }
-        td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #f2f2f7; font-size: 14px; }
+        th { background: #f9f9f9; color: #8e8e93; font-size: 11px; padding: 6px 2px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #eee; }
+        td { padding: 8px 2px; text-align: center; border-bottom: 1px solid #f2f2f7; font-size: 13px; line-height: 1.2; }
         
         .time-cell {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             color: var(--apple-blue);
             text-decoration: underline;
-            cursor: pointer;
         }
         tr.is-editing { background-color: #fff9f0 !important; }
 
         .diff-plus { color: #ff3b30; font-weight: bold; }
         .diff-minus { color: #34c759; font-weight: bold; }
 
-        /* --- 按鈕與鍵盤區 --- */
-        .actions { display: flex; gap: 8px; margin-bottom: 8px; }
+        /* --- 鍵盤與按鈕區：極簡縮小化 --- */
+        .actions { display: flex; gap: 6px; margin-bottom: 6px; }
         .actions button {
-            flex: 1; padding: 14px; border: none; border-radius: 12px;
-            font-size: 16px; font-weight: bold;
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: bold;
         }
         .btn-main { background: var(--apple-blue); color: #fff; }
         .btn-main.is-edit { background: var(--apple-orange); }
         .btn-clear { background: var(--apple-gray); color: #fff; }
 
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .keypad button {
-            font-size: 26px; padding: 15px 0; border: none; border-radius: 14px;
+            font-size: 20px; /* 縮小按鈕字體 */
+            padding: 10px 0; /* 縮小按鈕垂直高度 */
+            border: none; border-radius: 10px;
             background: #e5e5ea; color: #1c1c1e; font-weight: 500;
         }
         .keypad button:active { background: #c7c7cc; }
@@ -141,7 +137,7 @@
 <div class="container">
     <header>
         <h2>🏊 分段秒差計算器</h2>
-        <div class="hint-text">💡 若要修正秒數，請直接點擊表格中的總時間</div>
+        <div class="hint-text">💡 修正秒數：請點擊表格中的「總時間」</div>
     </header>
 
     <div class="input-section" id="input-ui">
@@ -157,10 +153,10 @@
         <table>
             <thead>
                 <tr>
-                    <th>段次</th>
-                    <th>總時間 (修正)</th>
-                    <th>分段</th>
-                    <th>秒差</th>
+                    <th width="15%">段次</th>
+                    <th width="35%">總時間 (修正)</th>
+                    <th width="25%">分段</th>
+                    <th width="25%">秒差</th>
                 </tr>
             </thead>
             <tbody id="tbody"></tbody>
@@ -182,7 +178,7 @@
 
 <script>
 const fields = ["min", "sec", "ms"];
-let currentIdx = 0; // 預設聚焦在「分」
+let currentIdx = 0;
 let records = [];
 let editingId = null;
 
@@ -196,7 +192,6 @@ function bind(el, cb) {
     el.addEventListener('click', cb);
 }
 
-// 使用者可以從任一格開始填寫
 fields.forEach((id, idx) => {
     bind(document.getElementById(id), () => { currentIdx = idx; highlight(); });
 });
@@ -221,12 +216,9 @@ function highlight() {
 function inputNum(n) {
     let f = document.getElementById(fields[currentIdx]);
     if (f.textContent === "00") f.textContent = "";
-    
     if (f.textContent.length < 2) {
         f.textContent += n;
-        // 自動往下一格跳
         if (f.textContent.length === 2) {
-            // 循環邏輯：0->1->2->0
             currentIdx = (currentIdx + 1) % 3;
             highlight();
         }
@@ -238,13 +230,8 @@ function backspace() {
     if (f.textContent !== "00" && f.textContent.length > 0) {
         f.textContent = f.textContent.slice(0, -1);
         if (f.textContent === "") f.textContent = "00";
-    } else if (currentIdx > 0) {
-        // 退格時往回跳一格
-        currentIdx--;
-        highlight();
     } else {
-        // 最前一格退格循環到最後一格
-        currentIdx = 2;
+        currentIdx = (currentIdx === 0) ? 2 : currentIdx - 1;
         highlight();
     }
 }
@@ -294,14 +281,11 @@ function enterEditMode(record) {
     document.getElementById("min").textContent = m.toString().padStart(2, "0");
     document.getElementById("sec").textContent = s.toString().padStart(2, "0");
     document.getElementById("ms").textContent = ms.toString().padStart(2, "0");
-    
     statusBadge.textContent = "編輯模式";
     statusBadge.classList.add("edit");
-    inputUI.classList.add("editing-active");
     btnSave.textContent = "💾 儲存修改";
     btnSave.classList.add("is-edit");
-    
-    currentIdx = 0; // 修改時從「分」開始
+    currentIdx = 0;
     highlight();
     refreshUI();
 }
@@ -310,7 +294,6 @@ function exitEditMode() {
     editingId = null;
     statusBadge.textContent = "新增模式";
     statusBadge.classList.remove("edit");
-    inputUI.classList.remove("editing-active");
     btnSave.textContent = "✓ 新增紀錄";
     btnSave.classList.remove("is-edit");
 }
@@ -323,7 +306,7 @@ function format(sec) {
 
 function clearInput() {
     fields.forEach(id => document.getElementById(id).textContent = "00");
-    currentIdx = 0; // 重置後回到第一格
+    currentIdx = 0;
     highlight();
 }
 
