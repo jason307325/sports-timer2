@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>運動計時輸入</title>
+
+<style>
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+    background:#f2f4f8;
+    padding:15px;
+}
+.container{
+    max-width:400px;
+    margin:auto;
+    background:#fff;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 4px 12px rgba(0,0,0,.1);
+    text-align:center;
+}
+.time-box{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:32px;
+    margin-bottom:15px;
+}
+.time{
+    width:80px;
+    border:2px solid #ccc;
+    border-radius:8px;
+    padding:6px;
+}
+.separator{
+    margin:0 6px;
+    font-weight:bold;
+}
+.buttons{
+    margin-bottom:10px;
+}
+button{
+    padding:8px 14px;
+    border:none;
+    border-radius:8px;
+    font-size:14px;
+    margin:4px;
+}
+.primary{background:#004aad;color:#fff}
+.secondary{background:#999;color:#fff}
+
+.keypad{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-top:15px;
+}
+.keypad button{
+    font-size:26px;
+    padding:18px 0;
+    background:#eef3ff;
+    border-radius:12px;
+}
+.keypad .action{
+    background:#004aad;
+    color:#fff;
+}
+.keypad .delete{
+    background:#d9534f;
+    color:#fff;
+}
+
+.records{
+    margin-top:20px;
+    text-align:left;
+}
+.record{
+    background:#eef6ff;
+    padding:6px 10px;
+    border-radius:6px;
+    margin-bottom:6px;
+    display:flex;
+    justify-content:space-between;
+}
+.record button{
+    font-size:12px;
+    background:#d9534f;
+    color:#fff;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h2>⏱ 成績輸入</h2>
+
+<div class="time-box">
+    <div id="min" class="time">00</div>
+    <span class="separator">:</span>
+    <div id="sec" class="time">00</div>
+    <span class="separator">.</span>
+    <div id="ms" class="time">00</div>
+</div>
+
+<div class="buttons">
+    <button class="primary" onclick="addRecord()">加入紀錄 ✓</button>
+    <button class="secondary" onclick="clearTime()">清空</button>
+</div>
+
+<div class="keypad">
+    <button onclick="inputNum(1)">1</button>
+    <button onclick="inputNum(2)">2</button>
+    <button onclick="inputNum(3)">3</button>
+    <button onclick="inputNum(4)">4</button>
+    <button onclick="inputNum(5)">5</button>
+    <button onclick="inputNum(6)">6</button>
+    <button onclick="inputNum(7)">7</button>
+    <button onclick="inputNum(8)">8</button>
+    <button onclick="inputNum(9)">9</button>
+    <button class="delete" onclick="backspace()">⌫</button>
+    <button onclick="inputNum(0)">0</button>
+    <button class="action" onclick="addRecord()">✓</button>
+</div>
+
+<div class="records">
+    <h3>📋 成績紀錄</h3>
+    <div id="recordList"></div>
+</div>
+
+</div>
+
+<script>
+const fields = ["min","sec","ms"];
+let currentField = 0;
+let records = JSON.parse(localStorage.getItem("records") || "[]");
+
+function getField(){
+    return document.getElementById(fields[currentField]);
+}
+
+function inputNum(n){
+    let field = getField();
+    if(field.textContent === "00") field.textContent = "";
+    if(field.textContent.length < 2){
+        field.textContent += n;
+        if(field.textContent.length === 2 && currentField < 2){
+            currentField++;
+        }
+    }
+    updateDisplay();
+}
+
+function backspace(){
+    let field = getField();
+    if(field.textContent.length > 0){
+        field.textContent = field.textContent.slice(0,-1);
+    }else if(currentField > 0){
+        currentField--;
+        backspace();
+    }
+    updateDisplay();
+}
+
+function clearTime(){
+    fields.forEach(id=>{
+        document.getElementById(id).textContent = "00";
+    });
+    currentField = 0;
+}
+
+function formatTime(){
+    return `${min.textContent.padStart(2,"0")}:${sec.textContent.padStart(2,"0")}.${ms.textContent.padStart(2,"0")}`;
+}
+
+function addRecord(){
+    if(formatTime()==="00:00.00") return;
+    records.push(formatTime());
+    localStorage.setItem("records",JSON.stringify(records));
+    renderRecords();
+    clearTime();
+}
+
+function deleteRecord(i){
+    records.splice(i,1);
+    localStorage.setItem("records",JSON.stringify(records));
+    renderRecords();
+}
+
+function renderRecords(){
+    recordList.innerHTML="";
+    records.forEach((t,i)=>{
+        recordList.innerHTML+=`
+        <div class="record">
+            <span>${i+1}. ${t}</span>
+            <button onclick="deleteRecord(${i})">刪除</button>
+        </div>`;
+    });
+}
+
+function updateDisplay(){
+    fields.forEach(id=>{
+        let el=document.getElementById(id);
+        el.style.borderColor="#ccc";
+    });
+    getField().style.borderColor="#004aad";
+}
+
+renderRecords();
+updateDisplay();
+</script>
+
+</body>
+</html>
