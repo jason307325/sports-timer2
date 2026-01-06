@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>選手分段秒差計算器</title>
-
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0071e3">
-
+    <title>選手分段秒差計算器 2026</title>
     <style>
         html, body {
             touch-action: manipulation;
@@ -35,129 +31,106 @@
             box-shadow: 0 4px 12px rgba(0,0,0,.08);
             display: flex;
             flex-direction: column;
+            box-sizing: border-box;
         }
 
-        h2 { text-align: center; color: #1d1d1f; margin: 10px 0; font-size: 20px; }
-
-        /* --- 1. 時間顯示區域 --- */
+        /* --- 1. 輸入區域 (縮小) --- */
+        .input-section {
+            background: #f9f9fb;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+        }
+        .input-label {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+        }
         .time-box {
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 36px;
-            margin-bottom: 15px;
+            font-size: 24px; /* 縮小輸入文字 */
             font-variant-numeric: tabular-nums;
         }
-
         .time {
-            width: 75px;
+            width: 55px; /* 縮小格子 */
             text-align: center;
-            border: 2px solid #ccc;
-            border-radius: 10px;
-            padding: 5px;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
+            border: 1.5px solid #ccc;
+            border-radius: 8px;
+            padding: 4px;
+            background: white;
         }
-
         .time.active {
             border-color: #0071e3;
             background: #eef3ff;
-            box-shadow: 0 0 8px rgba(0,113,227,0.3);
         }
+        .sep { margin: 0 3px; font-weight: bold; color: #86868b; }
 
-        .sep { margin: 0 4px; font-weight: bold; color: #86868b; }
-
-        /* --- 2. 紀錄表格區域 --- */
+        /* --- 2. 紀錄表格區域 (放大時間顯示) --- */
         .table-container {
             flex-grow: 1;
-            max-height: 250px;
+            min-height: 200px;
+            max-height: 300px;
             overflow-y: auto;
             margin-bottom: 15px;
             border: 1px solid #eee;
             border-radius: 8px;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
+        table { width: 100%; border-collapse: collapse; }
         th, td {
-            padding: 8px;
+            padding: 12px 8px; /* 增加間距 */
             text-align: center;
             border-bottom: 1px solid #eee;
             font-size: 14px;
         }
-
+        td.time-cell {
+            font-size: 17px; /* 放大顯示時間 */
+            font-weight: 500;
+            color: #0071e3;
+            text-decoration: underline; /* 提示可點擊修改 */
+        }
         th { background: #fafafa; color: #888; position: sticky; top: 0; }
 
         .diff-plus { color: #d70015; font-weight: bold; }
         .diff-minus { color: #008026; font-weight: bold; }
 
         /* --- 3. 下方操作區 --- */
-        .actions {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
+        .actions { display: flex; gap: 8px; margin-bottom: 10px; }
         .actions button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
+            flex: 1; padding: 12px; border: none; border-radius: 10px;
+            font-size: 15px; font-weight: bold; cursor: pointer;
         }
-
         .add { background: #0071e3; color: #fff; }
+        .editing-mode { background: #ff9500 !important; } /* 編輯模式變色 */
         .clear-all { background: #86868b; color: #fff; }
 
-        /* 計算機風格鍵盤排列 */
-        .keypad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .keypad button {
-            font-size: 24px;
-            padding: 15px 0;
-            border: none;
-            border-radius: 12px;
-            background: #f2f2f7;
-            color: #1d1d1f;
-            font-weight: 500;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
+            font-size: 24px; padding: 15px 0; border: none; border-radius: 12px;
+            background: #f2f2f7; color: #1d1d1f; font-weight: 500;
         }
-
         .keypad button:active { background: #d1d1d6; }
         .keypad .action { background: #0071e3; color: #fff; }
-        .keypad .action:active { background: #005bb5; }
         .keypad .delete { background: #ff3b30; color: #fff; }
-        .keypad .delete:active { background: #c72c23; }
-
     </style>
 </head>
 
 <body>
 <div class="container">
-    <h2>🏊 分段秒差計算器</h2>
+    <h2 id="title">🏊 分段秒差計算器</h2>
 
-    <!-- 輸入欄位 -->
-    <div class="time-box">
-        <div id="min" class="time">00</div>
-        <span class="sep">:</span>
-        <div id="sec" class="time">00</div>
-        <span class="sep">.</span>
-        <div id="ms" class="time">00</div>
+    <div class="input-section">
+        <div class="input-label" id="edit-status">輸入新成績或點擊下方時間修改</div>
+        <div class="time-box">
+            <div id="min" class="time">00</div><span class="sep">:</span>
+            <div id="sec" class="time">00</div><span class="sep">.</span>
+            <div id="ms" class="time">00</div>
+        </div>
     </div>
 
-    <!-- 紀錄表格 -->
     <div class="table-container">
         <table>
             <thead>
@@ -172,157 +145,178 @@
         </table>
     </div>
 
-    <!-- 清除與新增按鈕 -->
     <div class="actions">
         <button class="add" id="btn-add">✓ 新增紀錄</button>
         <button class="clear-all" id="btn-clear">🗑 清除</button>
     </div>
 
-    <!-- 計算機式鍵盤 (7-8-9 在上) -->
     <div class="keypad" id="keypad">
-        <button data-val="7">7</button>
-        <button data-val="8">8</button>
-        <button data-val="9">9</button>
-        
-        <button data-val="4">4</button>
-        <button data-val="5">5</button>
-        <button data-val="6">6</button>
-        
-        <button data-val="1">1</button>
-        <button data-val="2">2</button>
-        <button data-val="3">3</button>
-        
-        <button class="delete" data-val="del">⌫</button>
-        <button data-val="0">0</button>
-        <button class="action" data-val="add">✓</button>
+        <button data-val="7">7</button><button data-val="8">8</button><button data-val="9">9</button>
+        <button data-val="4">4</button><button data-val="5">5</button><button data-val="6">6</button>
+        <button data-val="1">1</button><button data-val="2">2</button><button data-val="3">3</button>
+        <button class="delete" data-val="del">⌫</button><button data-val="0">0</button><button class="action" data-val="add">✓</button>
     </div>
 </div>
 
 <script>
 const fields = ["min", "sec", "ms"];
-let current = 0;
+let currentFieldIdx = 0;
 let records = [];
-const tbody = document.getElementById("tbody");
+let editingIndex = -1; // -1 表示新增模式，>=0 表示修改模式
 
-// 零延遲處理
+const tbody = document.getElementById("tbody");
+const btnAdd = document.getElementById('btn-add');
+const editStatus = document.getElementById('edit-status');
+
 function bindFastClick(el, callback) {
-    el.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        callback();
-    }, { passive: false });
-    el.addEventListener('click', function(e) {
-        callback();
-    });
+    el.addEventListener('touchstart', (e) => { e.preventDefault(); callback(); }, { passive: false });
+    el.addEventListener('click', callback);
 }
 
+// 初始化欄位切換
 fields.forEach((id, idx) => {
-    bindFastClick(document.getElementById(id), () => {
-        current = idx;
-        highlight();
-    });
+    bindFastClick(document.getElementById(id), () => { currentFieldIdx = idx; highlight(); });
 });
 
+// 初始化鍵盤
 document.querySelectorAll('#keypad button').forEach(btn => {
     bindFastClick(btn, () => {
         const val = btn.getAttribute('data-val');
         if (val === 'del') backspace();
-        else if (val === 'add') addRecord();
+        else if (val === 'add') saveRecord();
         else inputNum(val);
     });
 });
 
-bindFastClick(document.getElementById('btn-add'), addRecord);
+bindFastClick(btnAdd, saveRecord);
 bindFastClick(document.getElementById('btn-clear'), clearAll);
 
 function highlight() {
     fields.forEach(id => document.getElementById(id).classList.remove("active"));
-    document.getElementById(fields[current]).classList.add("active");
+    document.getElementById(fields[currentFieldIdx]).classList.add("active");
 }
 
 function inputNum(n) {
-    let f = document.getElementById(fields[current]);
+    let f = document.getElementById(fields[currentFieldIdx]);
     if (f.textContent === "00") f.textContent = "";
     if (f.textContent.length < 2) {
         f.textContent += n;
-        if (f.textContent.length === 2 && current < 2) {
-            current++;
+        if (f.textContent.length === 2 && currentFieldIdx < 2) {
+            currentFieldIdx++;
             highlight();
         }
     }
 }
 
 function backspace() {
-    let f = document.getElementById(fields[current]);
+    let f = document.getElementById(fields[currentFieldIdx]);
     if (f.textContent !== "00" && f.textContent.length > 0) {
         f.textContent = f.textContent.slice(0, -1);
         if (f.textContent === "") f.textContent = "00";
-    } else if (current > 0) {
-        current--;
+    } else if (currentFieldIdx > 0) {
+        currentFieldIdx--;
         highlight();
     }
 }
 
-function addRecord() {
+function saveRecord() {
     const total = (parseInt(document.getElementById("min").textContent) * 60) + 
                   (parseInt(document.getElementById("sec").textContent)) + 
                   (parseInt(document.getElementById("ms").textContent) / 100);
-
     if (total === 0) return;
-    
-    let split = total;
-    if (records.length > 0) {
-        split = total - records[records.length - 1].total;
+
+    if (editingIndex > -1) {
+        // 修改模式
+        records[editingIndex].total = total;
+        editingIndex = -1;
+        btnAdd.textContent = "✓ 新增紀錄";
+        btnAdd.classList.remove("editing-mode");
+        editStatus.textContent = "修改完成";
+        editStatus.style.color = "#008026";
+    } else {
+        // 新增模式
+        if (records.length > 0 && total <= records[records.length-1].total) {
+            alert("總時間必須大於前一筆！"); return;
+        }
+        records.push({ total: total });
     }
 
-    if (split < 0) {
-        alert("錯誤：總時間不可低於前一筆紀錄");
-        return;
-    }
+    reCalculateAndUI();
+    clearInput();
+}
 
-    records.push({ total, split });
-    updateTable();
-    
+// 核心邏輯：重新計算所有分段與秒差並刷新介面
+function reCalculateAndUI() {
+    // 依總時間正序排序，確保邏輯正確
+    records.sort((a, b) => a.total - b.total);
+
+    tbody.innerHTML = "";
+    records.forEach((r, i) => {
+        // 計算分段
+        r.split = (i === 0) ? r.total : r.total - records[i - 1].total;
+        
+        // 計算秒差 (本段分段 - 前段分段)
+        let diff = "-", cls = "";
+        if (i > 0) {
+            let d = r.split - records[i - 1].split;
+            diff = (d > 0 ? "+" : "") + d.toFixed(2) + "s";
+            cls = d > 0 ? "diff-plus" : "diff-minus";
+        }
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${i + 1}</td>
+            <td class="time-cell">${formatTime(r.total)}</td>
+            <td>${formatTime(r.split)}</td>
+            <td class="${cls}">${diff}</td>
+        `;
+        
+        // 點擊總時間進入編輯模式
+        bindFastClick(row.querySelector('.time-cell'), () => startEdit(i));
+        
+        tbody.appendChild(row); // 正序排列：直接 appendChild
+    });
+}
+
+function startEdit(index) {
+    editingIndex = index;
+    const r = records[index];
+    const m = Math.floor(r.total / 60);
+    const s = Math.floor(r.total % 60);
+    const ms = Math.round((r.total % 1) * 100);
+
+    document.getElementById("min").textContent = m.toString().padStart(2, "0");
+    document.getElementById("sec").textContent = s.toString().padStart(2, "0");
+    document.getElementById("ms").textContent = ms.toString().padStart(2, "0");
+
+    btnAdd.textContent = "💾 確認修改";
+    btnAdd.classList.add("editing-mode");
+    editStatus.textContent = `正在修改第 ${index + 1} 段`;
+    editStatus.style.color = "#ff9500";
+    currentFieldIdx = 0;
+    highlight();
+}
+
+function formatTime(sec) {
+    let m = Math.floor(sec / 60);
+    let s = (sec % 60).toFixed(2);
+    return `${m.toString().padStart(2, "0")}:${s.padStart(5, "0")}`;
+}
+
+function clearInput() {
     fields.forEach(id => document.getElementById(id).textContent = "00");
-    current = 0; 
+    currentFieldIdx = 0;
     highlight();
 }
 
 function clearAll() {
     if (confirm("確定清除所有紀錄？")) {
         records = [];
-        updateTable();
-        fields.forEach(id => document.getElementById(id).textContent = "00");
-        current = 0;
-        highlight();
-    }
-}
-
-function updateTable() {
-    tbody.innerHTML = "";
-    // 最新的紀錄顯示在最上方
-    for (let i = records.length - 1; i >= 0; i--) {
-        let r = records[i];
-        let diff = "-", cls = "";
-        if (i > 0) {
-            let d = r.split - records[i-1].split;
-            diff = (d > 0 ? "+" : "") + d.toFixed(2) + "s";
-            cls = d > 0 ? "diff-plus" : "diff-minus";
-        }
-        
-        let m = Math.floor(r.total / 60);
-        let s = (r.total % 60).toFixed(2);
-        let ts = `${m.toString().padStart(2, "0")}:${s.padStart(5, "0")}`;
-
-        let sm = Math.floor(r.split / 60);
-        let ss = (r.split % 60).toFixed(2);
-        let ss_str = `${sm.toString().padStart(2, "0")}:${ss.padStart(5, "0")}`;
-
-        tbody.innerHTML += `<tr>
-            <td>${i + 1}</td>
-            <td>${ts}</td>
-            <td>${ss_str}</td>
-            <td class="${cls}">${diff}</td>
-        </tr>`;
+        editingIndex = -1;
+        btnAdd.textContent = "✓ 新增紀錄";
+        btnAdd.classList.remove("editing-mode");
+        tbody.innerHTML = "";
+        clearInput();
     }
 }
 
