@@ -1,261 +1,318 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-      <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0071e3">
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <!-- 防止縮放，優化行動端體驗 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>選手分段秒差計算器</title>
 
-<!-- 防止雙點放大，但保留雙指縮放 -->
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0071e3">
 
-<title>選手分段秒差計算器</title>
+    <style>
+        html, body {
+            touch-action: manipulation;
+            -webkit-user-select: none; /* 防止長按選取文字 */
+            user-select: none;
+        }
 
-<!-- PWA -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0071e3">
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f7;
+            padding: 20px;
+            margin: 0;
+        }
 
-<style>
-html, body {
-    touch-action: manipulation; /* 關鍵：防止雙點放大 */
-}
+        .container {
+            max-width: 620px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 4px 8px rgba(0,0,0,.1);
+        }
 
-body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
-    background:#f5f5f7;
-    padding:20px;
-}
-.container{
-    max-width:620px;
-    margin:auto;
-    background:#fff;
-    padding:20px;
-    border-radius:14px;
-    box-shadow:0 4px 8px rgba(0,0,0,.1);
-}
-h2{text-align:center}
+        h2 { text-align: center; color: #1d1d1f; }
 
-.time-box{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:32px;
-    margin:15px 0;
-}
-.time{
-    width:80px;
-    text-align:center;
-    border:2px solid #ccc;
-    border-radius:8px;
-    padding:6px;
-    cursor:pointer;
-}
-.time.active{
-    border-color:#0071e3;
-    background:#eef3ff;
-}
-.sep{margin:0 6px;font-weight:bold}
+        .time-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            margin: 15px 0;
+        }
 
-.actions{
-    display:flex;
-    gap:10px;
-    margin-bottom:10px;
-}
-.actions button{
-    flex:1;
-    padding:10px;
-    border:none;
-    border-radius:10px;
-    font-size:14px;
-    font-weight:bold;
-}
-.add{background:#0071e3;color:#fff}
-.clear-all{background:#86868b;color:#fff}
+        .time {
+            width: 80px;
+            text-align: center;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            padding: 6px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-.keypad{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
-    margin:15px 0;
-}
-.keypad button{
-    font-size:26px;
-    padding:18px 0;
-    border:none;
-    border-radius:12px;
-    background:#eef3ff;
-}
-.keypad .action{background:#0071e3;color:#fff}
-.keypad .delete{background:#d70015;color:#fff}
+        .time.active {
+            border-color: #0071e3;
+            background: #eef3ff;
+        }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:10px;
-}
-th,td{
-    padding:10px;
-    text-align:center;
-    border-bottom:1px solid #eee;
-}
-th{background:#fafafa;color:#888}
+        .sep { margin: 0 6px; font-weight: bold; }
 
-.diff-plus{color:#d70015}
-.diff-minus{color:#008026}
-</style>
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .add { background: #0071e3; color: #fff; }
+        .clear-all { background: #86868b; color: #fff; }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .keypad button {
+            font-size: 26px;
+            padding: 18px 0;
+            border: none;
+            border-radius: 12px;
+            background: #eef3ff;
+            color: #1d1d1f;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent; /* 移除點擊灰色背景 */
+        }
+
+        /* 模擬按下效果 */
+        .keypad button:active, .actions button:active {
+            opacity: 0.7;
+        }
+
+        .keypad .action { background: #0071e3; color: #fff; }
+        .keypad .delete { background: #d70015; color: #fff; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        th { background: #fafafa; color: #888; }
+
+        .diff-plus { color: #d70015; }
+        .diff-minus { color: #008026; }
+    </style>
 </head>
 
 <body>
 <div class="container">
+    <h2>🏊 選手分段秒差計算器</h2>
 
-<h2>🏊 選手分段秒差計算器</h2>
+    <div class="time-box">
+        <div id="min" class="time">00</div>
+        <span class="sep">:</span>
+        <div id="sec" class="time">00</div>
+        <span class="sep">.</span>
+        <div id="ms" class="time">00</div>
+    </div>
 
-<!-- 固定時間輸入 -->
-<div class="time-box">
-    <div id="min" class="time">00</div>
-    <span class="sep">:</span>
-    <div id="sec" class="time">00</div>
-    <span class="sep">.</span>
-    <div id="ms" class="time">00</div>
-</div>
+    <div class="actions">
+        <button class="add" id="btn-add">✓ 新增分段</button>
+        <button class="clear-all" id="btn-clear">🗑 清除全部</button>
+    </div>
 
-<div class="actions">
-    <button class="add" onclick="addRecord()">✓ 新增分段</button>
-    <button class="clear-all" onclick="clearAll()">🗑 清除全部紀錄</button>
-</div>
+    <div class="keypad" id="keypad">
+        <button data-val="1">1</button>
+        <button data-val="2">2</button>
+        <button data-val="3">3</button>
+        <button data-val="4">4</button>
+        <button data-val="5">5</button>
+        <button data-val="6">6</button>
+        <button data-val="7">7</button>
+        <button data-val="8">8</button>
+        <button data-val="9">9</button>
+        <button class="delete" data-val="del">⌫</button>
+        <button data-val="0">0</button>
+        <button class="action" data-val="add">✓</button>
+    </div>
 
-<!-- 十二宮格 -->
-<div class="keypad">
-    <button onclick="inputNum(1)">1</button>
-    <button onclick="inputNum(2)">2</button>
-    <button onclick="inputNum(3)">3</button>
-    <button onclick="inputNum(4)">4</button>
-    <button onclick="inputNum(5)">5</button>
-    <button onclick="inputNum(6)">6</button>
-    <button onclick="inputNum(7)">7</button>
-    <button onclick="inputNum(8)">8</button>
-    <button onclick="inputNum(9)">9</button>
-    <button class="delete" onclick="backspace()">⌫</button>
-    <button onclick="inputNum(0)">0</button>
-    <button class="action" onclick="addRecord()">✓</button>
-</div>
-
-<table>
-<thead>
-<tr>
-    <th>段次</th>
-    <th>總時間</th>
-    <th>分段秒數</th>
-    <th>秒差</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-
+    <table>
+        <thead>
+            <tr>
+                <th>段次</th>
+                <th>總時間</th>
+                <th>分段</th>
+                <th>秒差</th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+    </table>
 </div>
 
 <script>
-// ===== 防止 iOS 雙點放大（保險）=====
-let lastTouchEnd = 0;
-document.addEventListener('touchend', function (e) {
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) e.preventDefault();
-    lastTouchEnd = now;
-}, false);
+// ===== 核心變數 =====
+const fields = ["min", "sec", "ms"];
+let current = 0;
+let records = [];
+const tbody = document.getElementById("tbody");
 
-// ===== PWA Service Worker =====
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js");
+// ===== 0 延遲點擊處理函式 =====
+function bindFastClick(el, callback) {
+    // 同時監聽 touchstart (行動端) 與 click (桌機端)
+    // 使用 preventDefault 確保 touchstart 觸發後不會再觸發 click 導致重複執行
+    el.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        callback();
+    }, { passive: false });
+
+    el.addEventListener('click', function(e) {
+        // 如果是支援觸控的設備，click 會被上面的 preventDefault 擋住
+        // 這裡主要服務桌機滑鼠使用者
+        callback();
     });
 }
 
-// ===== 主邏輯 =====
-const fields=["min","sec","ms"];
-let current=0;
-let records=[];
+// ===== 初始化功能 =====
 
-// 點擊選擇欄位
-fields.forEach((id,idx)=>{
-    document.getElementById(id).onclick=()=>{
-        current=idx;
+// 1. 時間欄位切換
+fields.forEach((id, idx) => {
+    const el = document.getElementById(id);
+    bindFastClick(el, () => {
+        current = idx;
         highlight();
-    };
+    });
 });
 
-function field(){return document.getElementById(fields[current]);}
+// 2. 鍵盤邏輯
+document.querySelectorAll('#keypad button').forEach(btn => {
+    bindFastClick(btn, () => {
+        const val = btn.getAttribute('data-val');
+        if (val === 'del') {
+            backspace();
+        } else if (val === 'add') {
+            addRecord();
+        } else {
+            inputNum(val);
+        }
+    });
+});
 
-function inputNum(n){
-    let f=field();
-    if(f.textContent==="00") f.textContent="";
-    if(f.textContent.length<2){
-        f.textContent+=n;
-        if(f.textContent.length===2 && current<2) current++;
+// 3. 功能按鈕
+bindFastClick(document.getElementById('btn-add'), addRecord);
+bindFastClick(document.getElementById('btn-clear'), clearAll);
+
+// ===== 運算邏輯 =====
+
+function highlight() {
+    fields.forEach(id => document.getElementById(id).classList.remove("active"));
+    document.getElementById(fields[current]).classList.add("active");
+}
+
+function inputNum(n) {
+    let f = document.getElementById(fields[current]);
+    if (f.textContent === "00") f.textContent = "";
+    if (f.textContent.length < 2) {
+        f.textContent += n;
+        // 自動跳下一格
+        if (f.textContent.length === 2 && current < 2) {
+            current++;
+            highlight();
+        }
     }
-    highlight();
 }
 
-function backspace(){
-    let f=field();
-    if(f.textContent.length>0){
-        f.textContent=f.textContent.slice(0,-1);
-    }else if(current>0){
-        current--; backspace();
+function backspace() {
+    let f = document.getElementById(fields[current]);
+    if (f.textContent.length > 0 && f.textContent !== "00") {
+        f.textContent = f.textContent.slice(0, -1);
+        if (f.textContent === "") f.textContent = "00";
+    } else if (current > 0) {
+        current--;
+        highlight();
     }
+}
+
+function clearTime() {
+    fields.forEach(id => document.getElementById(id).textContent = "00");
+    current = 0;
     highlight();
 }
 
-function clearTime(){
-    fields.forEach(id=>document.getElementById(id).textContent="00");
-    current=0;
-    highlight();
+function timeToSec() {
+    const m = parseInt(document.getElementById("min").textContent);
+    const s = parseInt(document.getElementById("sec").textContent);
+    const ms = parseInt(document.getElementById("ms").textContent);
+    return m * 60 + s + ms / 100;
 }
 
-function timeToSec(){
-    return parseInt(min.textContent)*60
-        + parseInt(sec.textContent)
-        + parseInt(ms.textContent)/100;
+function secToTime(sec) {
+    let m = Math.floor(sec / 60);
+    let s = (sec % 60).toFixed(2);
+    return `${m.toString().padStart(2, "0")}:${s.padStart(5, "0")}`;
 }
 
-function secToTime(sec){
-    let m=Math.floor(sec/60);
-    let s=(sec%60).toFixed(2);
-    return `${m.toString().padStart(2,"0")}:${s.padStart(5,"0")}`;
-}
+function addRecord() {
+    let total = timeToSec();
+    if (total === 0 || records.length >= 30) return;
 
-function addRecord(){
-    if(records.length>=30) return;
-    let total=timeToSec();
-    if(total===0) return;
+    let split = total;
+    if (records.length > 0) {
+        split = total - records[records.length - 1].total;
+    }
 
-    let split=total;
-    if(records.length>0)
-        split=total-records.at(-1).total;
+    // 游泳比賽中，分段時間不應為負值（除非輸入錯誤）
+    if (split < 0) {
+        alert("總時間不能少於前一段！");
+        return;
+    }
 
-    records.push({total,split});
+    records.push({ total, split });
     updateTable();
     clearTime();
 }
 
-function clearAll(){
-    if(confirm("確定要清除所有分段紀錄？")){
-        records=[];
+function clearAll() {
+    if (confirm("確定要清除所有紀錄？")) {
+        records = [];
         updateTable();
+        clearTime();
     }
 }
 
-function updateTable(){
-    tbody.innerHTML="";
-    records.forEach((r,i)=>{
-        let diff="-",cls="";
-        if(i>0){
-            let d=r.split-records[i-1].split;
-            diff=(d>0?"+":"")+d.toFixed(2)+"s";
-            cls=d>0?"diff-plus":"diff-minus";
+function updateTable() {
+    tbody.innerHTML = "";
+    records.forEach((r, i) => {
+        let diff = "-", cls = "";
+        if (i > 0) {
+            let d = r.split - records[i - 1].split;
+            diff = (d > 0 ? "+" : "") + d.toFixed(2) + "s";
+            cls = d > 0 ? "diff-plus" : "diff-minus";
         }
-        tbody.innerHTML+=`
+        tbody.innerHTML += `
         <tr>
-            <td>${i+1}</td>
+            <td>${i + 1}</td>
             <td>${secToTime(r.total)}</td>
             <td>${secToTime(r.split)}</td>
             <td class="${cls}">${diff}</td>
@@ -263,19 +320,14 @@ function updateTable(){
     });
 }
 
-function highlight(){
-    fields.forEach(id=>{
-        document.getElementById(id).classList.remove("active");
-    });
-    field().classList.add("active");
-}
+// 啟動初始化
 highlight();
-</script>
-<script>
+
+// PWA Service Worker 註冊
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js");
-  });
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+    });
 }
 </script>
 </body>
