@@ -257,15 +257,34 @@ function save(){
 function draw(){
     records.sort((a,b)=>a.total-b.total);
     $("tbody").innerHTML="";
+
     records.forEach((r,i)=>{
-        const split=i?r.total-records[i-1].total:r.total;
-        const tr=document.createElement("tr");
-        tr.innerHTML=`
-        <td>${i+1}</td>
-        <td class="time-cell">${fmt(r.total)}</td>
-        <td>${fmt(split)}</td>
-        <td>${i?((split-(records[i-1].total-(records[i-2]?.total||0)))>0?'<span class="diff-plus">+</span>':'<span class="diff-minus">'):"-"}</td>`;
-        bind(tr.querySelector(".time-cell"),()=>{edit=r;load(r);});
+        const split = i === 0 ? r.total : r.total - records[i-1].total;
+
+        let diffText = "-";
+        let diffClass = "";
+
+        if(i >= 2){
+            const prevSplit = records[i-1].total - records[i-2].total;
+            const diff = split - prevSplit;
+
+            diffText = (diff > 0 ? "+" : "") + diff.toFixed(2);
+            diffClass = diff > 0 ? "diff-plus" : "diff-minus";
+        }
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${i+1}</td>
+            <td class="time-cell">${fmt(r.total)}</td>
+            <td>${fmt(split)}</td>
+            <td class="${diffClass}">${diffText}</td>
+        `;
+
+        bind(tr.querySelector(".time-cell"),()=>{
+            edit = r;
+            load(r);
+        });
+
         $("tbody").appendChild(tr);
     });
 }
