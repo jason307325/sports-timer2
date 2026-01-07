@@ -82,8 +82,8 @@ td{
     color:var(--apple-blue);
     font-weight:600;text-decoration:underline;
 }
-.diff-plus{color:#ff3b30;font-weight:bold}
-.diff-minus{color:#34c759;font-weight:bold}
+.diff-plus{color:#ff3b30;font-weight:bold} /* 慢的紅色 */
+.diff-minus{color:#34c759;font-weight:bold} /* 快的綠色 */
 
 .actions{display:flex;gap:6px;margin-bottom:6px}
 .actions button{
@@ -152,13 +152,11 @@ td{
 <script>
 const fields=["min","sec","ms"];
 let idx=0,records=[],edit=null,first=true;
-
 const $=id=>document.getElementById(id);
 const bind=(el,fn)=>{
     el.addEventListener("touchstart",e=>{e.preventDefault();fn();},{passive:false});
     el.addEventListener("click",fn);
 };
-
 fields.forEach((f,i)=>bind($(f),()=>{idx=i;first=true;hl()}));
 
 document.querySelectorAll("#keypad button").forEach(b=>{
@@ -169,7 +167,6 @@ document.querySelectorAll("#keypad button").forEach(b=>{
         else num(v);
     });
 });
-
 bind($("save"),save);
 bind($("clear"),()=>{if(confirm("確定清除？")){records=[];edit=null;draw();clr();}});
 
@@ -197,7 +194,7 @@ function save(){
     draw(); clr();
 }
 
-/* ✅ 已修正的秒差計算 */
+/* ✅ 秒差優化，第一筆顯示0.00，每筆都與上一筆分段比較 */
 function draw(){
     records.sort((a,b)=>a.total-b.total);
     $("tbody").innerHTML="";
@@ -205,9 +202,9 @@ function draw(){
     records.forEach((r,i)=>{
         const split = i===0 ? r.total : r.total - records[i-1].total;
 
-        let diffText="-", diffClass="";
-        if(i>=2){
-            const prevSplit = records[i-1].total - records[i-2].total;
+        let diffText="0.00", diffClass="";
+        if(i>0){
+            const prevSplit = records[i-1].total - (records[i-2]?.total||0);
             const diff = split - prevSplit;
             diffText = (diff>0?"+":"") + diff.toFixed(2);
             diffClass = diff>0 ? "diff-plus" : "diff-minus";
