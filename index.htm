@@ -1,358 +1,298 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>選手分段秒差計算器 2026</title>
-    <link rel="manifest" href="manifest.json">
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<title>選手分段秒差計算器 2026</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0071e3">
-    <style>
-        :root {
-            --apple-blue: #0071e3;
-            --apple-orange: #ff9500;
-            --apple-gray: #8e8e93;
-            --apple-bg: #f2f2f7;
-        }
 
-        html, body {
-            touch-action: manipulation;
-            -webkit-user-select: none;
-            user-select: none;
-            overscroll-behavior: none;
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            background: var(--apple-bg);
-        }
+<style>
+:root{
+    --apple-blue:#0071e3;
+    --apple-orange:#ff9500;
+    --apple-gray:#8e8e93;
+    --apple-bg:#f2f2f7;
+}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-        }
+html,body{
+    margin:0;
+    padding:0;
+    height:100%;
+    background:var(--apple-bg);
+    touch-action:manipulation;
+    user-select:none;
+    overscroll-behavior:none;
+}
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-            height: 100svh; 
-            background: #fff;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-            padding: 8px 12px env(safe-area-inset-bottom);
-        }
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    display:flex;
+    justify-content:center;
+}
 
-        header { text-align: center; padding: 2px 0; }
-        h2 { margin: 2px 0; font-size: 16px; color: #1c1c1e; }
-        .hint-text { font-size: 11px; color: var(--apple-blue); margin-bottom: 5px; font-weight: 500; }
+.container{
+    width:100%;
+    max-width:500px;
+    height:100svh;
+    background:#fff;
+    display:flex;
+    flex-direction:column;
+    padding:8px 12px env(safe-area-inset-bottom);
+    box-sizing:border-box;
+}
 
-        .input-section {
-            background: #ffffff;
-            padding: 8px;
-            border-radius: 10px;
-            border: 1.5px solid #e5e5ea;
-            margin-bottom: 6px;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 1px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: bold;
-            margin-bottom: 4px;
-            background: var(--apple-gray);
-            color: white;
-        }
-        .status-badge.edit { background: var(--apple-orange); }
+header{text-align:center}
+h2{margin:2px 0;font-size:16px}
+.hint-text{font-size:11px;color:var(--apple-blue)}
 
-        .time-box {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 26px;
-            font-variant-numeric: tabular-nums;
-        }
-        .time {
-            width: 60px;
-            height: 48px;
-            line-height: 48px;
-            text-align: center;
-            border: 2px solid #d1d1d6;
-            border-radius: 10px;
-            background: white;
-            transition: all 0.2s;
-        }
-        .time.active { 
-            border-color: var(--apple-blue); 
-            background: #eef3ff;
-            box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
-        }
-        /* 修改中的視覺提示 */
-        .time.will-replace {
-            color: var(--apple-orange);
-            background: #fff9f0;
-        }
-        .sep { margin: 0 4px; font-weight: bold; color: #aeaeb2; font-size: 20px; }
+.input-section{
+    border:1.5px solid #e5e5ea;
+    border-radius:10px;
+    padding:8px;
+    margin-bottom:6px;
+}
 
-        .table-container {
-            flex: 1;
-            overflow-y: auto;
-            border: 1px solid #e5e5ea;
-            border-radius: 8px;
-            margin-bottom: 6px;
-        }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f9f9f9; color: #8e8e93; font-size: 11px; padding: 6px 2px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #eee; }
-        td { padding: 8px 2px; text-align: center; border-bottom: 1px solid #f2f2f7; font-size: 13px; }
-        
-        .time-cell {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--apple-blue);
-            text-decoration: underline;
-        }
-        tr.is-editing { background-color: #fff9f0 !important; }
+.status-badge{
+    font-size:10px;
+    padding:2px 6px;
+    border-radius:4px;
+    background:var(--apple-gray);
+    color:#fff;
+    display:inline-block;
+    margin-bottom:4px;
+}
+.status-badge.edit{background:var(--apple-orange)}
 
-        .diff-plus { color: #ff3b30; font-weight: bold; }
-        .diff-minus { color: #34c759; font-weight: bold; }
+.time-box{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:26px;
+    font-variant-numeric:tabular-nums;
+}
 
-        .actions { display: flex; gap: 6px; margin-bottom: 6px; }
-        .actions button {
-            flex: 1; padding: 10px; border: none; border-radius: 8px;
-            font-size: 14px; font-weight: bold;
-        }
-        .btn-main { background: var(--apple-blue); color: #fff; }
-        .btn-main.is-edit { background: var(--apple-orange); }
-        .btn-clear { background: var(--apple-gray); color: #fff; }
+.time{
+    width:60px;
+    height:48px;
+    line-height:48px;
+    text-align:center;
+    border:2px solid #d1d1d6;
+    border-radius:10px;
+    background:#fff;
+}
+.time.active{
+    border-color:var(--apple-blue);
+    background:#eef3ff;
+}
+.time.will-replace{
+    color:var(--apple-orange);
+    background:#fff9f0;
+}
 
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-        .keypad button {
-            font-size: 20px;
-            padding: 10px 0;
-            border: none; border-radius: 10px;
-            background: #e5e5ea; color: #1c1c1e; font-weight: 500;
-        }
-        .keypad button:active { background: #c7c7cc; }
-        .keypad .action { background: var(--apple-blue); color: #fff; }
-        .keypad .delete { background: #ff3b30; color: #fff; }
-    </style>
+.sep{margin:0 4px;color:#aaa;font-size:20px}
+
+.table-container{
+    flex:1;
+    overflow-y:auto;
+    border:1px solid #e5e5ea;
+    border-radius:8px;
+    margin-bottom:6px;
+}
+
+table{width:100%;border-collapse:collapse}
+th{
+    font-size:11px;
+    background:#f9f9f9;
+    position:sticky;
+    top:0;
+}
+td{
+    font-size:13px;
+    padding:8px 2px;
+    border-bottom:1px solid #f2f2f7;
+    text-align:center;
+}
+
+.time-cell{
+    color:var(--apple-blue);
+    font-weight:600;
+    text-decoration:underline;
+}
+
+.diff-plus{color:#ff3b30;font-weight:bold}
+.diff-minus{color:#34c759;font-weight:bold}
+
+.actions{
+    display:flex;
+    gap:6px;
+    margin-bottom:6px;
+}
+
+.actions button{
+    flex:1;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:bold;
+}
+
+.btn-main{background:var(--apple-blue);color:#fff}
+.btn-main.is-edit{background:var(--apple-orange)}
+.btn-clear{background:var(--apple-gray);color:#fff}
+
+.keypad{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:6px;
+}
+.keypad button{
+    font-size:20px;
+    padding:10px 0;
+    border:none;
+    border-radius:10px;
+    background:#e5e5ea;
+}
+.keypad .delete{background:#ff3b30;color:#fff}
+.keypad .action{background:var(--apple-blue);color:#fff}
+</style>
 </head>
 
 <body>
 <div class="container">
-    <header>
-        <h2>🏊 分段秒差計算器</h2>
-        <div class="hint-text">💡 修正時間：點擊表格「總時間」直接打數字覆蓋</div>
-    </header>
 
-    <div class="input-section" id="input-ui">
-        <div id="status-badge" class="status-badge">新增模式</div>
-        <div class="time-box">
-            <div id="min" class="time">00</div><span class="sep">:</span>
-            <div id="sec" class="time">00</div><span class="sep">.</span>
-            <div id="ms" class="time">00</div>
-        </div>
-    </div>
+<header>
+    <h2>🏊 分段秒差計算器</h2>
+    <div class="hint-text">點擊表格「總時間」可直接修正</div>
+</header>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th width="15%">段次</th>
-                    <th width="35%">總時間 (修正)</th>
-                    <th width="25%">分段</th>
-                    <th width="25%">秒差</th>
-                </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-        </table>
-    </div>
-
-    <div class="actions">
-        <button class="btn-main" id="btn-save">✓ 新增紀錄</button>
-        <button class="btn-clear" id="btn-clear">🗑 清除</button>
-    </div>
-
-    <div class="keypad" id="keypad">
-        <button data-val="7">7</button><button data-val="8">8</button><button data-val="9">9</button>
-        <button data-val="4">4</button><button data-val="5">5</button><button data-val="6">6</button>
-        <button data-val="1">1</button><button data-val="2">2</button><button data-val="3">3</button>
-        <button class="delete" data-val="del">⌫</button><button data-val="0">0</button><button class="action" data-val="save">✓</button>
+<div class="input-section">
+    <div id="status" class="status-badge">新增模式</div>
+    <div class="time-box">
+        <div id="min" class="time">00</div><span class="sep">:</span>
+        <div id="sec" class="time">00</div><span class="sep">.</span>
+        <div id="ms" class="time">00</div>
     </div>
 </div>
 
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>段次</th><th>總時間</th><th>分段</th><th>秒差</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="actions">
+<button id="save" class="btn-main">✓ 新增紀錄</button>
+<button id="clear" class="btn-clear">🗑 清除</button>
+</div>
+
+<div class="keypad" id="keypad">
+<button data="7">7</button><button data="8">8</button><button data="9">9</button>
+<button data="4">4</button><button data="5">5</button><button data="6">6</button>
+<button data="1">1</button><button data="2">2</button><button data="3">3</button>
+<button class="delete" data="del">⌫</button><button data="0">0</button>
+<button class="action" data="save">✓</button>
+</div>
+
+</div>
+
 <script>
-const fields = ["min", "sec", "ms"];
-let currentIdx = 0;
-let records = [];
-let editingId = null;
-let isFirstKeyInField = true; // 追蹤是否為該格的第一個數字，用於「直接覆蓋」
+const fields=["min","sec","ms"];
+let idx=0,records=[],edit=null,first=true;
 
-const tbody = document.getElementById("tbody");
-const btnSave = document.getElementById('btn-save');
-const statusBadge = document.getElementById('status-badge');
+const $=id=>document.getElementById(id);
+const bind=(el,fn)=>{
+    el.addEventListener("touchstart",e=>{e.preventDefault();fn();},{passive:false});
+    el.addEventListener("click",fn);
+};
 
-function bind(el, cb) {
-    el.addEventListener('touchstart', (e) => { e.preventDefault(); cb(); }, { passive: false });
-    el.addEventListener('click', cb);
-}
+fields.forEach((f,i)=>bind($(f),()=>{idx=i;first=true;hl()}));
 
-fields.forEach((id, idx) => {
-    bind(document.getElementById(id), () => { 
-        currentIdx = idx; 
-        isFirstKeyInField = true; // 點擊某格後，下次按數字會覆蓋
-        highlight(); 
+document.querySelectorAll("#keypad button").forEach(b=>{
+    bind(b,()=>{
+        const v=b.getAttribute("data");
+        if(v==="del") del();
+        else if(v==="save") save();
+        else num(v);
     });
 });
 
-document.querySelectorAll('#keypad button').forEach(btn => {
-    bind(btn, () => {
-        const val = btn.getAttribute('data-val');
-        if (val === 'del') backspace();
-        else if (val === 'save') saveRecord();
-        else inputNum(val);
-    });
-});
+bind($("save"),save);
+bind($("clear"),()=>{if(confirm("確定清除？")){records=[];edit=null;draw();clr();}});
 
-bind(btnSave, saveRecord);
-bind(document.getElementById('btn-clear'), clearAll);
-
-function highlight() {
-    fields.forEach((id, idx) => {
-        const el = document.getElementById(id);
-        el.classList.remove("active", "will-replace");
-        if(idx === currentIdx) {
-            el.classList.add("active");
-            if(isFirstKeyInField) el.classList.add("will-replace");
-        }
+function hl(){
+    fields.forEach((f,i)=>{
+        $(f).className="time"+(i===idx?" active":"")+(i===idx&&first?" will-replace":"");
     });
 }
 
-function inputNum(n) {
-    let f = document.getElementById(fields[currentIdx]);
-    
-    if (isFirstKeyInField) {
-        // 直接覆蓋舊數字
-        f.textContent = n;
-        isFirstKeyInField = false;
-    } else {
-        // 輸入第二個數字
-        if (f.textContent.length < 2) {
-            f.textContent += n;
-        }
-    }
-
-    // 只要滿兩位數，自動跳下一格並設定為「待覆蓋」狀態
-    if (f.textContent.length === 2) {
-        currentIdx = (currentIdx + 1) % 3;
-        isFirstKeyInField = true;
-        highlight();
-    } else {
-        highlight();
-    }
+function num(n){
+    const f=$(fields[idx]);
+    f.textContent=first?n:f.textContent+n;
+    first=false;
+    if(f.textContent.length===2){idx=(idx+1)%3;first=true;}
+    hl();
 }
 
-function backspace() {
-    let f = document.getElementById(fields[currentIdx]);
-    f.textContent = "00";
-    isFirstKeyInField = true;
-    highlight();
+function del(){ $(fields[idx]).textContent="00"; first=true; hl(); }
+
+function save(){
+    const t=+$("min").textContent*60 + +$("sec").textContent + +$("ms").textContent/100;
+    if(!t) return;
+    if(edit){edit.total=t;edit=null;}
+    else records.push({id:Date.now(),total:t});
+    draw(); clr();
 }
 
-function saveRecord() {
-    const total = (parseInt(document.getElementById("min").textContent) * 60) + 
-                  (parseInt(document.getElementById("sec").textContent)) + 
-                  (parseInt(document.getElementById("ms").textContent) / 100);
-    if (total === 0) return;
-
-    if (editingId !== null) {
-        const item = records.find(r => r.id === editingId);
-        if (item) item.total = total;
-        exitEditMode();
-    } else {
-        records.push({ id: Date.now(), total: total });
-    }
-
-    refreshUI();
-    clearInput();
-}
-
-function refreshUI() {
-    records.sort((a, b) => a.total - b.total);
-    tbody.innerHTML = "";
-    records.forEach((r, i) => {
-        r.split = (i === 0) ? r.total : r.total - records[i - 1].total;
-        let diff = "-", cls = "";
-        if (i > 0) {
-            let d = r.split - records[i - 1].split;
-            diff = (d > 0 ? "+" : "") + d.toFixed(2) + "s";
-            cls = d > 0 ? "diff-plus" : "diff-minus";
-        }
-        const tr = document.createElement("tr");
-        if (editingId === r.id) tr.className = "is-editing";
-        tr.innerHTML = `<td>${i + 1}</td><td class="time-cell">${format(r.total)}</td><td>${format(r.split)}</td><td class="${cls}">${diff}</td>`;
-        bind(tr.querySelector('.time-cell'), () => enterEditMode(r));
-        tbody.appendChild(tr);
+function draw(){
+    records.sort((a,b)=>a.total-b.total);
+    $("tbody").innerHTML="";
+    records.forEach((r,i)=>{
+        const split=i?r.total-records[i-1].total:r.total;
+        const tr=document.createElement("tr");
+        tr.innerHTML=`
+        <td>${i+1}</td>
+        <td class="time-cell">${fmt(r.total)}</td>
+        <td>${fmt(split)}</td>
+        <td>${i?((split-(records[i-1].total-(records[i-2]?.total||0)))>0?'<span class="diff-plus">+</span>':'<span class="diff-minus">'):"-"}</td>`;
+        bind(tr.querySelector(".time-cell"),()=>{edit=r;load(r);});
+        $("tbody").appendChild(tr);
     });
 }
 
-function enterEditMode(record) {
-    editingId = record.id;
-    const m = Math.floor(record.total / 60);
-    const s = Math.floor(record.total % 60);
-    const ms = Math.round((record.total % 1) * 100);
-    
-    document.getElementById("min").textContent = m.toString().padStart(2, "0");
-    document.getElementById("sec").textContent = s.toString().padStart(2, "0");
-    document.getElementById("ms").textContent = ms.toString().padStart(2, "0");
-    
-    statusBadge.textContent = "編輯模式";
-    statusBadge.classList.add("edit");
-    btnSave.textContent = "💾 儲存修改";
-    btnSave.classList.add("is-edit");
-    
-    currentIdx = 0;
-    isFirstKeyInField = true; // 進入編輯模式，點第一格時直接覆蓋
-    highlight();
-    refreshUI();
+function load(r){
+    $("min").textContent=Math.floor(r.total/60).toString().padStart(2,"0");
+    $("sec").textContent=Math.floor(r.total%60).toString().padStart(2,"0");
+    $("ms").textContent=Math.round(r.total%1*100).toString().padStart(2,"0");
+    idx=0;first=true;hl();
 }
 
-function exitEditMode() {
-    editingId = null;
-    statusBadge.textContent = "新增模式";
-    statusBadge.classList.remove("edit");
-    btnSave.textContent = "✓ 新增紀錄";
-    btnSave.classList.remove("is-edit");
+function fmt(s){
+    const m=Math.floor(s/60);
+    const ss=(s%60).toFixed(2).padStart(5,"0");
+    return `${m.toString().padStart(2,"0")}:${ss}`;
 }
 
-function format(sec) {
-    let m = Math.floor(sec / 60);
-    let s = (sec % 60).toFixed(2);
-    return `${m.toString().padStart(2, "0")}:${s.padStart(5, "0")}`;
-}
+function clr(){ fields.forEach(f=>$(f).textContent="00"); idx=0;first=true;hl(); }
 
-function clearInput() {
-    fields.forEach(id => document.getElementById(id).textContent = "00");
-    currentIdx = 0;
-    isFirstKeyInField = true;
-    highlight();
-}
-
-function clearAll() {
-    if (confirm("確定清除所有紀錄？")) {
-        records = [];
-        exitEditMode();
-        refreshUI();
-        clearInput();
-    }
-}
-highlight();
+hl();
 </script>
 
 <script>
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js');
+if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("./sw.js");
 }
 </script>
+
 </body>
 </html>
