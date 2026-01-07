@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>選手分段秒差計算器 2026</title>
+    <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0071e3">
     <style>
         :root {
             --apple-blue: #0071e3;
@@ -345,6 +347,10 @@ function clearAll() {
     }
 }
 highlight();
+<script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js');
+}
 </script>
 </body>
 </html>
