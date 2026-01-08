@@ -66,29 +66,51 @@ h2{margin:2px 0;font-size:18px}
 .time.will-replace{color:var(--apple-orange); background:#fff9f0;}
 .sep{margin:0 4px;color:#aaa;font-size:22px}
 
+/* --- 優化成績顯示區 --- */
 .table-container{
-    flex:1; overflow-y:auto; border:1px solid #e5e5ea; border-radius:8px; margin-bottom:6px;
-    max-height: calc(8 * 48px + 40px); /* 8 rows + header */
+    flex:1; overflow-y:auto; border:1px solid #e5e5ea; border-radius:10px; 
+    margin-bottom:8px; background:#fcfcfc;
 }
 
-table{width:100%; border-collapse:collapse}
-table th, table td{
-    font-size:16px; padding:8px 4px; text-align:center;
+table{width:100%; border-collapse:collapse; table-layout: fixed;}
+table th{
+    background:#f2f2f7; position:sticky; top:0; z-index:10;
+    font-size:14px; color:#666; padding:10px 4px;
+    border-bottom: 1px solid #e5e5ea;
 }
 
-th{background:#f9f9f9; position:sticky; top:0; z-index:10;}
-.time-cell{color:var(--apple-blue); font-weight:600; text-decoration:underline; font-size:16px;}
-.diff-plus{color:#ff3b30; font-weight:bold; font-size:16px;}
-.diff-minus{color:#34c759; font-weight:bold; font-size:16px;}
+table td{
+    padding:12px 4px; text-align:center;
+    border-bottom: 1px solid #f0f0f0;
+    font-variant-numeric: tabular-nums;
+}
 
+/* 放大字體設定 */
+.col-rank { width: 15%; font-size: 14px; color: #888; }
+.time-cell { 
+    color: var(--apple-blue); 
+    font-weight: 700; 
+    font-size: 19px; 
+    text-decoration: underline; 
+}
+.split-cell {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+}
+.diff-plus{ color:#ff3b30; font-weight:bold; font-size:17px; }
+.diff-minus{ color:#34c759; font-weight:bold; font-size:17px; }
+
+/* --- 動作按鈕 --- */
 .actions{display:flex; gap:6px; margin-bottom:6px;}
-.actions button{flex:1; padding:10px; border:none; border-radius:8px; font-size:14px; font-weight:bold;}
+.actions button{flex:1; padding:12px; border:none; border-radius:8px; font-size:16px; font-weight:bold;}
 .btn-main{background:var(--apple-blue); color:#fff;}
 .btn-main.is-edit{background:var(--apple-orange);}
 .btn-clear{background:var(--apple-gray); color:#fff;}
 
+/* --- 鍵盤 --- */
 .keypad{display:grid; grid-template-columns:repeat(3,1fr); gap:6px;}
-.keypad button{font-size:20px; padding:10px 0; border:none; border-radius:10px; background:#e5e5ea;}
+.keypad button{font-size:22px; padding:12px 0; border:none; border-radius:10px; background:#e5e5ea;}
 .keypad .delete{background:#ff3b30; color:#fff;}
 .keypad .action{background:var(--apple-blue); color:#fff;}
 </style>
@@ -98,8 +120,8 @@ th{background:#f9f9f9; position:sticky; top:0; z-index:10;}
 <div class="container">
 
 <header>
-    <h2>🏊 分段秒差計算器</h2>
-    <div class="hint-text">點擊表格「總時間」可直接修正</div>
+    <h2>🏊 選手分段秒差計算器</h2>
+    <div class="hint-text">點擊表格「總時間」可直接修正成績</div>
 </header>
 
 <div class="input-section">
@@ -115,7 +137,10 @@ th{background:#f9f9f9; position:sticky; top:0; z-index:10;}
 <table>
 <thead>
 <tr>
-<th>段次</th><th>總時間</th><th>分段</th><th>秒差</th>
+<th style="width:15%">段次</th>
+<th style="width:30%">總時間</th>
+<th style="width:30%">分段</th>
+<th style="width:25%">秒差</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
@@ -139,7 +164,7 @@ th{background:#f9f9f9; position:sticky; top:0; z-index:10;}
 
 <script>
 const fields=["min","sec","ms"];
-let idx=0,records=[],edit=null,first=true;
+let idx=0, records=[], editRecord=null, firstInput=true;
 
 const $=id=>document.getElementById(id);
 const bind=(el,fn)=>{
@@ -147,89 +172,115 @@ const bind=(el,fn)=>{
     el.addEventListener("click",fn);
 };
 
-fields.forEach((f,i)=>bind($(f),()=>{idx=i;first=true;hl()}));
+fields.forEach((f,i)=>bind($(f),()=>{idx=i;firstInput=true;updateHighlight()}));
 
 document.querySelectorAll("#keypad button").forEach(b=>{
     bind(b,()=>{
         const v=b.getAttribute("data");
-        if(v==="del") del();
-        else if(v==="save") save();
-        else num(v);
+        if(v==="del") deleteLast();
+        else if(v==="save") saveRecord();
+        else inputNum(v);
     });
 });
 
-bind($("save"),save);
-bind($("clear"),()=>{if(confirm("確定清除？")){records=[];edit=null;draw();clr();}});
+bind($("save"),saveRecord);
+bind($("clear"),()=>{if(confirm("確定要清除所有紀錄嗎？")){records=[];editRecord=null;renderTable();clearInput();}});
 
-function hl(){
+function updateHighlight(){
     fields.forEach((f,i)=>{
-        $(f).className="time"+(i===idx?" active":"")+(i===idx&&first?" will-replace":"");
+        $(f).className="time"+(i===idx?" active":"")+(i===idx&&firstInput?" will-replace":"");
     });
+    const status=$("status");
+    if(editRecord){
+        status.textContent="編輯模式";
+        status.className="status-badge edit";
+        $("save").textContent="✓ 更新紀錄";
+        $("save").classList.add("is-edit");
+    } else {
+        status.textContent="新增模式";
+        status.className="status-badge";
+        $("save").textContent="✓ 新增紀錄";
+        $("save").classList.remove("is-edit");
+    }
 }
 
-function num(n){
+function inputNum(n){
     const f=$(fields[idx]);
-    f.textContent=first?n:f.textContent+n;
-    first=false;
-    if(f.textContent.length===2){idx=(idx+1)%3;first=true;}
-    hl();
+    f.textContent=firstInput?n.padStart(1,"0"):f.textContent+n;
+    if(f.textContent.length > 2) f.textContent = f.textContent.slice(-2);
+    firstInput=false;
+    if(f.textContent.length===2){idx=(idx+1)%3;firstInput=true;}
+    updateHighlight();
 }
 
-function del(){ $(fields[idx]).textContent="00"; first=true; hl(); }
+function deleteLast(){ $(fields[idx]).textContent="00"; firstInput=true; updateHighlight(); }
 
-function save(){
+function saveRecord(){
     const t=+$("min").textContent*60 + +$("sec").textContent + +$("ms").textContent/100;
-    if(!t) return;
-    if(edit){edit.total=t;edit=null;}
-    else records.push({id:Date.now(),total:t});
-    draw(); clr();
+    if(t <= 0) return;
+
+    if(editRecord){
+        editRecord.total=t;
+        editRecord=null;
+    } else {
+        records.push({id:Date.now(), total:t});
+    }
+    renderTable();
+    clearInput();
 }
 
-function draw(){
+function renderTable(){
     records.sort((a,b)=>a.total-b.total);
-    $("tbody").innerHTML="";
+    const tbody=$("tbody");
+    tbody.innerHTML="";
+    
     records.forEach((r,i)=>{
-        const split=i?r.total-records[i-1].total:r.total;
+        const split = i === 0 ? r.total : r.total - records[i-1].total;
         let diffText="-", diffCls="";
-        if(i>0){
-            const prevSplit=records[i-1].total-(records[i-2]?.total||0);
-            const diff=split-prevSplit;
-            diffText=(diff>0?"+":"")+diff.toFixed(2);
-            diffCls=diff>0?"diff-plus":"diff-minus";
+        
+        if(i > 0){
+            const prevSplit = records[i-1].total - (records[i-2] ? records[i-2].total : 0);
+            const diff = split - prevSplit;
+            diffText = (diff > 0 ? "+" : "") + diff.toFixed(2);
+            diffCls = diff > 0 ? "diff-plus" : "diff-minus";
         }
+
         const tr=document.createElement("tr");
         tr.innerHTML=`
-        <td>${i+1}</td>
-        <td class="time-cell">${fmt(r.total)}</td>
-        <td>${fmt(split)}</td>
-        <td class="${diffCls}">${diffText}</td>`;
-        bind(tr.querySelector(".time-cell"),()=>{edit=r;load(r);});
-        $("tbody").appendChild(tr);
+            <td class="col-rank">${i+1}</td>
+            <td class="time-cell">${formatTime(r.total)}</td>
+            <td class="split-cell">${formatTime(split)}</td>
+            <td class="${diffCls}">${diffText}</td>
+        `;
+        
+        bind(tr.querySelector(".time-cell"),()=>{
+            editRecord=r;
+            loadRecordToInput(r);
+        });
+        
+        tbody.appendChild(tr);
     });
 }
 
-function load(r){
+function loadRecordToInput(r){
     $("min").textContent=Math.floor(r.total/60).toString().padStart(2,"0");
     $("sec").textContent=Math.floor(r.total%60).toString().padStart(2,"0");
     $("ms").textContent=Math.round((r.total%1)*100).toString().padStart(2,"0");
-    idx=0;first=true;hl();
+    idx=0; firstInput=true; updateHighlight();
 }
 
-function fmt(s){
+function formatTime(s){
     const m=Math.floor(s/60);
     const ss=(s%60).toFixed(2).padStart(5,"0");
     return `${m.toString().padStart(2,"0")}:${ss}`;
 }
 
-function clr(){ fields.forEach(f=>$(f).textContent="00"); idx=0;first=true;hl(); }
-
-hl();
-</script>
-
-<script>
-if("serviceWorker" in navigator){
-    navigator.serviceWorker.register("./sw.js");
+function clearInput(){
+    fields.forEach(f=>$(f).textContent="00");
+    idx=0; firstInput=true; updateHighlight();
 }
+
+updateHighlight();
 </script>
 
 </body>
