@@ -41,32 +41,37 @@ header{text-align:center}
 h2{margin:2px 0;font-size:18px}
 .hint-text{font-size:12px;color:var(--apple-blue);margin-bottom:4px}
 
+/* --- 輸入區放大 --- */
 .input-section{
-    border:1.5px solid #e5e5ea; border-radius:10px;
-    padding:8px; margin-bottom:6px;
+    border:1.5px solid #e5e5ea; border-radius:12px;
+    padding:12px 8px; margin-bottom:8px;
+    background: #ffffff;
 }
 
 .status-badge{
-    font-size:11px; padding:2px 6px; border-radius:4px;
+    font-size:12px; padding:3px 8px; border-radius:4px;
     background:var(--apple-gray); color:#fff; display:inline-block;
-    margin-bottom:4px;
+    margin-bottom:8px;
 }
 .status-badge.edit{background:var(--apple-orange)}
 
 .time-box{
-    display:flex; justify-content:center; align-items:center; font-size:28px;
+    display:flex; justify-content:center; align-items:center; 
     font-variant-numeric:tabular-nums;
 }
 
 .time{
-    width:60px; height:48px; line-height:48px; text-align:center;
-    border:2px solid #d1d1d6; border-radius:10px; background:#fff;
+    /* 顯著放大輸入格子寬度與高度 */
+    width:80px; height:64px; line-height:64px; 
+    text-align:center; font-size:40px; font-weight:bold;
+    border:2.5px solid #d1d1d6; border-radius:12px; background:#fff;
+    transition: all 0.2s;
 }
-.time.active{border-color:var(--apple-blue); background:#eef3ff;}
+.time.active{border-color:var(--apple-blue); background:#eef3ff; box-shadow: 0 0 8px rgba(0,113,227,0.2);}
 .time.will-replace{color:var(--apple-orange); background:#fff9f0;}
-.sep{margin:0 4px;color:#aaa;font-size:22px}
+.sep{margin:0 6px; color:#aaa; font-size:32px; font-weight: bold;}
 
-/* --- 優化成績顯示區 --- */
+/* --- 成績表格區優化 --- */
 .table-container{
     flex:1; overflow-y:auto; border:1px solid #e5e5ea; border-radius:10px; 
     margin-bottom:8px; background:#fcfcfc;
@@ -75,42 +80,42 @@ h2{margin:2px 0;font-size:18px}
 table{width:100%; border-collapse:collapse; table-layout: fixed;}
 table th{
     background:#f2f2f7; position:sticky; top:0; z-index:10;
-    font-size:14px; color:#666; padding:10px 4px;
+    font-size:14px; color:#666; padding:12px 4px;
     border-bottom: 1px solid #e5e5ea;
 }
 
 table td{
-    padding:12px 4px; text-align:center;
+    padding:14px 4px; text-align:center;
     border-bottom: 1px solid #f0f0f0;
     font-variant-numeric: tabular-nums;
 }
 
-/* 放大字體設定 */
+/* 放大顯示字幕 */
 .col-rank { width: 15%; font-size: 14px; color: #888; }
 .time-cell { 
     color: var(--apple-blue); 
     font-weight: 700; 
-    font-size: 19px; 
+    font-size: 20px; /* 成績字體放大 */
     text-decoration: underline; 
 }
 .split-cell {
-    font-size: 18px;
+    font-size: 19px; /* 分段字體放大 */
     font-weight: 500;
     color: #333;
 }
-.diff-plus{ color:#ff3b30; font-weight:bold; font-size:17px; }
-.diff-minus{ color:#34c759; font-weight:bold; font-size:17px; }
+.diff-plus{ color:#ff3b30; font-weight:bold; font-size:18px; }
+.diff-minus{ color:#34c759; font-weight:bold; font-size:18px; }
 
-/* --- 動作按鈕 --- */
-.actions{display:flex; gap:6px; margin-bottom:6px;}
-.actions button{flex:1; padding:12px; border:none; border-radius:8px; font-size:16px; font-weight:bold;}
+/* --- 底部按鈕與鍵盤 --- */
+.actions{display:flex; gap:6px; margin-bottom:8px;}
+.actions button{flex:1; padding:14px; border:none; border-radius:10px; font-size:18px; font-weight:bold;}
 .btn-main{background:var(--apple-blue); color:#fff;}
 .btn-main.is-edit{background:var(--apple-orange);}
 .btn-clear{background:var(--apple-gray); color:#fff;}
 
-/* --- 鍵盤 --- */
-.keypad{display:grid; grid-template-columns:repeat(3,1fr); gap:6px;}
-.keypad button{font-size:22px; padding:12px 0; border:none; border-radius:10px; background:#e5e5ea;}
+.keypad{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+.keypad button{font-size:24px; padding:14px 0; border:none; border-radius:12px; background:#e5e5ea; color: #000;}
+.keypad button:active{background:#d1d1d6;}
 .keypad .delete{background:#ff3b30; color:#fff;}
 .keypad .action{background:var(--apple-blue); color:#fff;}
 </style>
@@ -120,7 +125,7 @@ table td{
 <div class="container">
 
 <header>
-    <h2>🏊 選手分段秒差計算器</h2>
+    <h2>🏊 選手分段秒差計算器 2026</h2>
     <div class="hint-text">點擊表格「總時間」可直接修正成績</div>
 </header>
 
@@ -172,8 +177,10 @@ const bind=(el,fn)=>{
     el.addEventListener("click",fn);
 };
 
+// 切換輸入欄位
 fields.forEach((f,i)=>bind($(f),()=>{idx=i;firstInput=true;updateHighlight()}));
 
+// 鍵盤事件
 document.querySelectorAll("#keypad button").forEach(b=>{
     bind(b,()=>{
         const v=b.getAttribute("data");
@@ -206,14 +213,24 @@ function updateHighlight(){
 
 function inputNum(n){
     const f=$(fields[idx]);
-    f.textContent=firstInput?n.padStart(1,"0"):f.textContent+n;
+    // 如果是該格第一個數字則取代，否則累加
+    f.textContent=firstInput?n:f.textContent+n;
     if(f.textContent.length > 2) f.textContent = f.textContent.slice(-2);
     firstInput=false;
-    if(f.textContent.length===2){idx=(idx+1)%3;firstInput=true;}
+    
+    // 輸入滿兩位自動跳下一格
+    if(f.textContent.length===2){
+        idx=(idx+1)%3;
+        firstInput=true;
+    }
     updateHighlight();
 }
 
-function deleteLast(){ $(fields[idx]).textContent="00"; firstInput=true; updateHighlight(); }
+function deleteLast(){ 
+    $(fields[idx]).textContent="00"; 
+    firstInput=true; 
+    updateHighlight(); 
+}
 
 function saveRecord(){
     const t=+$("min").textContent*60 + +$("sec").textContent + +$("ms").textContent/100;
@@ -230,6 +247,7 @@ function saveRecord(){
 }
 
 function renderTable(){
+    // 依總時間排序
     records.sort((a,b)=>a.total-b.total);
     const tbody=$("tbody");
     tbody.innerHTML="";
@@ -253,6 +271,7 @@ function renderTable(){
             <td class="${diffCls}">${diffText}</td>
         `;
         
+        // 點擊成績進入編輯
         bind(tr.querySelector(".time-cell"),()=>{
             editRecord=r;
             loadRecordToInput(r);
