@@ -10,35 +10,27 @@ content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,vie
 :root{
  --blue:#0071e3;--orange:#ff9500;--gray:#8e8e93;--bg:#f2f2f7;
 }
-html,body{
- margin:0;height:100%;background:var(--bg);
- user-select:none;touch-action:manipulation;
-}
-body{
- display:flex;justify-content:center;
- font-family:-apple-system,BlinkMacSystemFont;
-}
+html,body{margin:0;height:100%;background:var(--bg);user-select:none;}
+body{display:flex;justify-content:center;font-family:-apple-system;}
 .container{
- width:100%;max-width:480px;
- min-height:100svh;
- background:#fff;
- display:flex;flex-direction:column;
- padding:
-   env(safe-area-inset-top)
-   12px
-   calc(env(safe-area-inset-bottom) + 8px);
+ width:100%;max-width:480px;min-height:100svh;
+ background:#fff;display:flex;flex-direction:column;
+ padding:env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom)+8px);
  box-sizing:border-box;
 }
 
-/* ===== 抬頭 ===== */
-header{text-align:center;margin-bottom:6px}
-header h2{margin:2px 0;font-size:18px}
-header .hint{font-size:13px;color:var(--blue)}
-
-/* ===== 輸入格 ===== */
-.time-box{
- display:flex;justify-content:center;margin:8px 0;
+/* ===== Tabs ===== */
+.tabs{display:flex;margin-bottom:8px}
+.tabs button{
+ flex:1;padding:12px;border:none;font-size:16px;font-weight:bold;
+ background:#e5e5ea;
 }
+.tabs button.active{background:var(--blue);color:#fff}
+.section{display:none}
+.section.active{display:block}
+
+/* ===== Time input ===== */
+.time-box{display:flex;justify-content:center;margin:8px 0}
 .time{
  width:80px;height:64px;line-height:64px;
  font-size:40px;font-weight:bold;text-align:center;
@@ -46,21 +38,19 @@ header .hint{font-size:13px;color:var(--blue)}
 }
 .time.active{border-color:var(--blue);background:#eef3ff}
 .sep{margin:0 6px;font-size:30px;color:#aaa}
+.locked .time{opacity:.4;pointer-events:none}
 
-/* ===== 碼錶 ===== */
-.stopwatch{
- display:flex;gap:6px;margin-bottom:8px;
-}
+/* ===== Stopwatch ===== */
+.stopwatch{display:flex;gap:8px;margin-bottom:8px}
 .stopwatch button{
- flex:1;padding:14px;border:none;border-radius:14px;
+ flex:1;padding:16px;border:none;border-radius:14px;
  font-size:18px;font-weight:bold;
 }
 .btn-blue{background:var(--blue);color:#fff}
 .btn-orange{background:var(--orange);color:#fff}
 .btn-gray{background:var(--gray);color:#fff}
-button:disabled{opacity:.4}
 
-/* ===== 表格（8筆高度） ===== */
+/* ===== Table ===== */
 .table-container{
  height:300px;overflow-y:auto;
  border:1px solid #eee;border-radius:14px;
@@ -68,19 +58,15 @@ button:disabled{opacity:.4}
 }
 table{width:100%;border-collapse:collapse}
 th,td{
- padding:8px 4px;text-align:center;
- font-size:16px;
+ padding:8px 4px;text-align:center;font-size:16px;
  border-bottom:1px solid #eee;
 }
 th{background:#f2f2f7;position:sticky;top:0}
-.time-cell{
- color:var(--blue);font-weight:800;
- text-decoration:underline;
-}
+.time-cell{color:var(--blue);font-weight:800;text-decoration:underline}
 .diff-plus{color:#ff3b30;font-weight:bold}
 .diff-minus{color:#34c759;font-weight:bold}
 
-/* ===== 操作 ===== */
+/* ===== Actions ===== */
 .actions{display:flex;gap:8px;margin-bottom:8px}
 .actions button{
  flex:1;padding:14px;border:none;border-radius:14px;
@@ -89,7 +75,7 @@ th{background:#f2f2f7;position:sticky;top:0}
 .btn-main{background:var(--blue);color:#fff}
 .btn-clear{background:var(--gray);color:#fff}
 
-/* ===== 鍵盤 ===== */
+/* ===== Keypad ===== */
 .keypad{
  display:grid;grid-template-columns:repeat(3,1fr);
  gap:8px;
@@ -101,30 +87,55 @@ th{background:#f2f2f7;position:sticky;top:0}
 }
 .keypad .delete{background:#ff3b30;color:#fff}
 .keypad .action{background:var(--blue);color:#fff}
+.hidden{display:none}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<header>
- <h2 id="modeTitle">🏊 新增成績</h2>
- <div class="hint">點擊「總時間」可修正成績</div>
-</header>
-
-<div class="time-box">
- <div id="min" class="time">00</div><span class="sep">:</span>
- <div id="sec" class="time">00</div><span class="sep">.</span>
- <div id="ms" class="time">00</div>
+<!-- Tabs -->
+<div class="tabs">
+ <button id="tabManual" class="active">手動輸入</button>
+ <button id="tabSW">碼錶</button>
 </div>
 
-<div class="stopwatch">
- <button id="swStart" class="btn-blue">▶ 開始</button>
- <button id="swPause" class="btn-orange">⏸ 暫停</button>
- <button id="swLap" class="btn-blue">⏱ 分段</button>
- <button id="swStop" class="btn-gray">⏹ 結束</button>
+<!-- ===== 手動輸入 ===== -->
+<div id="manual" class="section active">
+ <div class="time-box">
+  <div id="min" class="time">00</div><span class="sep">:</span>
+  <div id="sec" class="time">00</div><span class="sep">.</span>
+  <div id="ms" class="time">00</div>
+ </div>
+
+ <div class="actions">
+  <button id="save" class="btn-main">✓ 新增紀錄</button>
+  <button id="clearAll" class="btn-clear">🗑 清除</button>
+ </div>
+
+ <div class="keypad" id="keypad">
+  <button data="7">7</button><button data="8">8</button><button data="9">9</button>
+  <button data="4">4</button><button data="5">5</button><button data="6">6</button>
+  <button data="1">1</button><button data="2">2</button><button data="3">3</button>
+  <button class="delete" data="del">⌫</button>
+  <button data="0">0</button>
+  <button class="action" data="save">✓</button>
+ </div>
 </div>
 
+<!-- ===== 碼錶 ===== -->
+<div id="sw" class="section">
+ <div class="stopwatch">
+  <button id="swStart" class="btn-blue">▶ 開始</button>
+  <button id="swLap" class="btn-orange">⏱ 分段</button>
+  <button id="swStop" class="btn-gray">⏹ 結束</button>
+ </div>
+ <div style="text-align:center;color:#666;font-size:14px">
+  碼錶進行中，手動輸入已鎖定
+ </div>
+</div>
+
+<!-- ===== 共用紀錄 ===== -->
 <div class="table-container">
 <table>
 <thead><tr>
@@ -134,20 +145,6 @@ th{background:#f2f2f7;position:sticky;top:0}
 </table>
 </div>
 
-<div class="actions">
- <button id="save" class="btn-main">✓ 新增紀錄</button>
- <button id="clear" class="btn-clear">🗑 清除</button>
-</div>
-
-<div class="keypad">
- <button data="7">7</button><button data="8">8</button><button data="9">9</button>
- <button data="4">4</button><button data="5">5</button><button data="6">6</button>
- <button data="1">1</button><button data="2">2</button><button data="3">3</button>
- <button class="delete" data="del">⌫</button>
- <button data="0">0</button>
- <button class="action" data="save">✓</button>
-</div>
-
 </div>
 
 <script>
@@ -155,15 +152,25 @@ const $=id=>document.getElementById(id);
 const fields=["min","sec","ms"];
 let idx=0,first=true;
 let records=[];
-let edit=null;
 
-/* ===== 輸入 ===== */
+/* ===== Tabs ===== */
+tabManual.onclick=()=>switchTab("manual");
+tabSW.onclick=()=>switchTab("sw");
+function switchTab(t){
+ manual.classList.toggle("active",t==="manual");
+ sw.classList.toggle("active",t==="sw");
+ tabManual.classList.toggle("active",t==="manual");
+ tabSW.classList.toggle("active",t==="sw");
+ keypad.classList.toggle("hidden",t==="sw");
+ manual.classList.toggle("locked",t==="sw");
+}
+
+/* ===== Manual input ===== */
 fields.forEach((f,i)=>$(f).onclick=()=>{idx=i;first=true;hi();});
 function hi(){fields.forEach((f,i)=>$(f).classList.toggle("active",i===idx));}
 hi();
 
-/* ===== 鍵盤 ===== */
-document.querySelectorAll(".keypad button").forEach(b=>{
+document.querySelectorAll("#keypad button").forEach(b=>{
  b.onclick=()=>{
   const v=b.getAttribute("data");
   if(v==="del") del();
@@ -184,58 +191,26 @@ function del(){
  else if(idx>0){idx--;$(fields[idx]).textContent="00";}
  first=true;hi();
 }
-
-/* ===== 存檔（新增 / 修正） ===== */
 function save(){
- const t=+$("min").textContent*60
-   + +$("sec").textContent
-   + +$("ms").textContent/100;
- if(t<=0) return;
-
- if(edit){
-  edit.total=t;
-  edit=null;
-  modeTitle.textContent="🏊 新增成績";
-  save.textContent="✓ 新增紀錄";
- }else{
-  if(records.length>=30) return;
-  records.push({total:t});
- }
- clearInput();
- render();
+ const t=+$("min").textContent*60 + +$("sec").textContent + +$("ms").textContent/100;
+ if(t<=0||records.length>=30) return;
+ records.push({total:t});
+ clearInput();render();
 }
+function clearInput(){fields.forEach(f=>$(f).textContent="00");idx=0;first=true;hi();}
+clearAll.onclick=()=>{records=[];render();clearInput();};
 
-/* ===== 清除 ===== */
-clear.onclick=()=>{
- edit=null;
- modeTitle.textContent="🏊 新增成績";
- save.textContent="✓ 新增紀錄";
- records=[];
- clearInput();
- render();
-};
-function clearInput(){
- fields.forEach(f=>$(f).textContent="00");
- idx=0;first=true;hi();
-}
-
-/* ===== 碼錶 ===== */
+/* ===== Stopwatch ===== */
 let run=false,start=0,el=0,raf=null;
 function tick(){
  el=(performance.now()-start)/1000;
- setTime(el);raf=requestAnimationFrame(tick);
+ raf=requestAnimationFrame(tick);
 }
-function setTime(t){
- min.textContent=String(Math.floor(t/60)).padStart(2,"0");
- sec.textContent=String(Math.floor(t%60)).padStart(2,"0");
- ms.textContent=String(Math.floor((t%1)*100)).padStart(2,"0");
-}
-swStart.onclick=()=>{if(run)return;run=true;start=performance.now()-el*1000;tick();}
-swPause.onclick=()=>{run=false;cancelAnimationFrame(raf);}
-swLap.onclick=()=>{if(run) save();}
-swStop.onclick=()=>{run=false;cancelAnimationFrame(raf);}
+swStart.onclick=()=>{if(run)return;run=true;start=performance.now();tick();}
+swLap.onclick=()=>{if(run){records.push({total:el});render();}}
+swStop.onclick=()=>{run=false;cancelAnimationFrame(raf);};
 
-/* ===== 表格 ===== */
+/* ===== Table ===== */
 function render(){
  records.sort((a,b)=>a.total-b.total);
  tbody.innerHTML="";
@@ -246,26 +221,14 @@ function render(){
    const p=i>1?records[i-1].total-records[i-2].total:records[i-1].total;
    const x=s-p;d=(x>0?"+":"")+x.toFixed(2);c=x>0?"diff-plus":"diff-minus";
   }
-  const tr=document.createElement("tr");
-  tr.innerHTML=`
+  tbody.innerHTML+=`
+  <tr>
    <td>${i+1}</td>
-   <td class="time-cell">${fmt(r.total)}</td>
+   <td>${fmt(r.total)}</td>
    <td>${fmt(s)}</td>
-   <td class="${c}">${d}</td>`;
-  tr.querySelector(".time-cell").onclick=()=>{
-   edit=r;
-   load(r);
-   modeTitle.textContent="✏️ 修正成績（點 ✓ 更新）";
-   save.textContent="✓ 更新紀錄";
-  };
-  tbody.appendChild(tr);
+   <td class="${c}">${d}</td>
+  </tr>`;
  });
-}
-function load(r){
- min.textContent=String(Math.floor(r.total/60)).padStart(2,"0");
- sec.textContent=String(Math.floor(r.total%60)).padStart(2,"0");
- ms.textContent=String(Math.round((r.total%1)*100)).padStart(2,"0");
- idx=0;first=true;hi();
 }
 function fmt(s){
  const m=Math.floor(s/60);
