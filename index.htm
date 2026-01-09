@@ -2,8 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>選手分段秒差計算器 2026</title>
 
 <style>
@@ -24,58 +23,61 @@ body{
 .container{
     width:100%;max-width:500px;height:100svh;
     background:#fff;display:flex;flex-direction:column;
-    padding:8px 12px;box-sizing:border-box;
+    padding:6px 10px;box-sizing:border-box;
 }
-h2{text-align:center;margin:4px 0;font-size:18px}
+h2{text-align:center;margin:2px 0;font-size:17px}
 
-/* ===== 時間顯示 ===== */
+/* ===== 時間輸入 ===== */
 .time-box{
     display:flex;justify-content:center;align-items:center;
-    font-variant-numeric:tabular-nums;margin-bottom:6px;
+    font-variant-numeric:tabular-nums;margin-bottom:4px;
 }
 .time{
-    width:72px;height:56px;line-height:56px;
-    text-align:center;font-size:36px;font-weight:bold;
+    width:70px;height:54px;line-height:54px;
+    text-align:center;font-size:34px;font-weight:bold;
     border:2px solid #ccc;border-radius:10px;
 }
-.sep{margin:0 6px;font-size:28px;color:#aaa}
+.time.active{border-color:var(--blue);background:#eef3ff}
+.sep{margin:0 6px;font-size:26px;color:#aaa}
 
-/* ===== 碼錶控制 ===== */
+/* ===== 碼錶 ===== */
 .stopwatch{
-    display:flex;gap:6px;margin-bottom:6px;
+    display:flex;gap:4px;margin-bottom:4px;
 }
 .stopwatch button{
-    flex:1;padding:10px;border:none;border-radius:8px;
-    font-size:14px;font-weight:bold;
+    flex:1;padding:8px;border:none;border-radius:8px;
+    font-size:13px;font-weight:bold;
 }
 .btn-blue{background:var(--blue);color:#fff}
 .btn-orange{background:var(--orange);color:#fff}
 .btn-gray{background:var(--gray);color:#fff}
+button:disabled{opacity:.4}
 
 /* ===== 表格 ===== */
 .table-container{
-    flex:1;overflow-y:auto;
+    flex:1;
+    min-height:55%;
+    overflow-y:auto;
     border:1px solid #eee;border-radius:10px;
-    margin-bottom:6px;
+    margin-bottom:4px;
 }
 table{width:100%;border-collapse:collapse}
 th,td{
-    padding:8px 4px;text-align:center;
+    padding:6px 4px;text-align:center;
     border-bottom:1px solid #eee;
 }
 th{
     background:#f2f2f7;position:sticky;top:0;
 }
 .time-cell{color:var(--blue);font-weight:700}
-.split-cell{font-weight:500}
 .diff-plus{color:#ff3b30;font-weight:bold}
 .diff-minus{color:#34c759;font-weight:bold}
 
 /* ===== 功能鍵 ===== */
-.actions{display:flex;gap:6px;margin-bottom:6px}
+.actions{display:flex;gap:4px;margin-bottom:4px}
 .actions button{
-    flex:1;padding:12px;border:none;border-radius:10px;
-    font-size:16px;font-weight:bold;
+    flex:1;padding:10px;border:none;border-radius:8px;
+    font-size:15px;font-weight:bold;
 }
 .btn-main{background:var(--blue);color:#fff}
 .btn-clear{background:var(--gray);color:#fff}
@@ -83,11 +85,11 @@ th{
 /* ===== 縮小鍵盤 ===== */
 .keypad{
     display:grid;grid-template-columns:repeat(3,1fr);
-    gap:6px;
+    gap:4px;
 }
 .keypad button{
-    font-size:20px;padding:10px 0;
-    border:none;border-radius:10px;
+    font-size:18px;padding:8px 0;
+    border:none;border-radius:8px;
     background:#e5e5ea;
 }
 .keypad .delete{background:#ff3b30;color:#fff}
@@ -107,10 +109,10 @@ th{
 </div>
 
 <div class="stopwatch">
-<button id="btnStart" class="btn-blue">▶︎ 開始</button>
-<button id="btnPause" class="btn-orange">⏸ 暫停</button>
-<button id="btnLap" class="btn-blue">⏱ 分段</button>
-<button id="btnStop" class="btn-gray">⏹ 結束</button>
+<button id="swStart" class="btn-blue">▶︎ 開始</button>
+<button id="swPause" class="btn-orange">⏸ 暫停</button>
+<button id="swLap" class="btn-blue">⏱ 分段</button>
+<button id="swStop" class="btn-gray">⏹ 結束</button>
 </div>
 
 <div class="table-container">
@@ -145,84 +147,106 @@ const $=id=>document.getElementById(id);
 const fields=["min","sec","ms"];
 let idx=0, firstInput=true;
 let records=[];
+let stopwatchLocked=false;
 
-/* ===== 手動輸入（完整回復） ===== */
-document.querySelectorAll("#keypad button").forEach(b=>{
-    b.addEventListener("click",()=>{
-        const v=b.getAttribute("data");
-        if(v==="del") deleteLast();
-        else if(v==="save") saveRecord();
-        else inputNum(v);
+/* ===== 輸入格點選 ===== */
+fields.forEach((f,i)=>{
+    $(f).onclick=()=>{
+        idx=i;
+        firstInput=true;
+        highlight();
+    };
+});
+function highlight(){
+    fields.forEach((f,i)=>{
+        $(f).classList.toggle("active",i===idx);
     });
+}
+highlight();
+
+/* ===== 鍵盤 ===== */
+document.querySelectorAll("#keypad button").forEach(b=>{
+    b.onclick=()=>{
+        const v=b.getAttribute("data");
+        if(v==="del") del();
+        else if(v==="save") saveRecord();
+        else input(v);
+    };
 });
 
-function inputNum(n){
+function input(n){
     const f=$(fields[idx]);
     f.textContent=firstInput?n:f.textContent+n;
     if(f.textContent.length>2) f.textContent=f.textContent.slice(-2);
     firstInput=false;
     if(f.textContent.length===2){
-        idx=(idx+1)%3;
+        idx=Math.min(idx+1,2);
         firstInput=true;
     }
+    highlight();
 }
-
-function deleteLast(){
-    $(fields[idx]).textContent="00";
+function del(){
+    if($(fields[idx]).textContent!=="00"){
+        $(fields[idx]).textContent="00";
+    }else if(idx>0){
+        idx--;
+        $(fields[idx]).textContent="00";
+    }
     firstInput=true;
+    highlight();
 }
 
+/* ===== 儲存 ===== */
 function saveRecord(){
-    if(records.length>=30) return;
+    if(stopwatchLocked) return;
     const t=+$("min").textContent*60
         + +$("sec").textContent
         + +$("ms").textContent/100;
-    if(t<=0) return;
+    if(t<=0 || records.length>=30) return;
     records.push({total:t});
     renderTable();
 }
 
+/* ===== 清除 ===== */
 clear.onclick=()=>{
     records=[];
+    stopwatchLocked=false;
+    swStart.disabled=false;
     renderTable();
 };
 
-/* ===== 碼錶（已修正） ===== */
-let running=false;
-let startTime=0;
-let elapsed=0;
-let raf=null;
+/* ===== 碼錶 ===== */
+let running=false,startTime=0,elapsed=0,raf=null;
 
 function tick(){
     elapsed=(performance.now()-startTime)/1000;
     setTime(elapsed);
     raf=requestAnimationFrame(tick);
 }
-
 function setTime(t){
     min.textContent=String(Math.floor(t/60)).padStart(2,"0");
     sec.textContent=String(Math.floor(t%60)).padStart(2,"0");
     ms.textContent=String(Math.floor((t%1)*100)).padStart(2,"0");
 }
 
-btnStart.onclick=()=>{
-    if(running) return;
+swStart.onclick=()=>{
+    if(running || stopwatchLocked) return;
     running=true;
     startTime=performance.now()-elapsed*1000;
     tick();
 };
-btnPause.onclick=()=>{
+swPause.onclick=()=>{
     running=false;
     cancelAnimationFrame(raf);
 };
-btnLap.onclick=()=>{
+swLap.onclick=()=>{
     if(running) saveRecord();
 };
-btnStop.onclick=()=>{
+swStop.onclick=()=>{
     running=false;
     cancelAnimationFrame(raf);
-    elapsed=0;
-    setTime(0);
+    stopwatchLocked=true;
+    swStart.disabled=true;
 };
 
 /* ===== 表格 ===== */
@@ -244,12 +268,11 @@ function renderTable(){
         <tr>
         <td>${i+1}</td>
         <td class="time-cell">${fmt(r.total)}</td>
-        <td class="split-cell">${fmt(split)}</td>
+        <td>${fmt(split)}</td>
         <td class="${cls}">${diff}</td>
         </tr>`;
     });
 }
-
 function fmt(s){
     const m=Math.floor(s/60);
     const ss=(s%60).toFixed(2).padStart(5,"0");
