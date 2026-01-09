@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-    <title>分段記錄器 2026</title>
+    <title>分段記錄器</title>
     <style>
         :root {
             --blue: #007aff;
@@ -12,82 +12,72 @@
             --green: #34c759;
             --gray: #8e8e93;
             --bg: #f2f2f7;
-            --row-bg: #ffffff;
         }
+        /* 使用動態視窗單位 svh 來確保在不同瀏覽器 UI 狀態下佔滿可視區域 */
         html, body { margin: 0; height: 100%; background: var(--bg); user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         .container {
-            width: 100%; max-width: 480px; height: 100vh;
-            background: var(--bg); display: flex; flex-direction: column;
-            padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom);
-            box-sizing: border-box; margin: 0 auto;
+            width: 100%; max-width: 480px;
+            /* height: 100vh; 改為最小高度以適應鍵盤彈出時內容捲動 */
+            min-height: 100vh;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
         }
 
-        h1 { text-align: center; font-size: 1.2rem; margin: 10px 0; color: #000; letter-spacing: 1px; }
+        /* 標題與提示區塊 */
+        header { padding: 12px 16px 0; padding-top: calc(12px + env(safe-area-inset-top)); }
+        h1 { font-size: 1.2rem; margin: 0; color: #000; display: inline; }
+        .tip { font-size: 0.75rem; color: var(--gray); margin-top: 4px; display: block; padding-left: 10px; }
 
         /* Tabs */
-        .tabs { display: flex; background: #d1d1d6; border-radius: 10px; padding: 2px; margin-bottom: 12px; }
-        .tabs button {
-            flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600;
-            background: transparent; transition: 0.2s;
-        }
+        .tabs { display: flex; background: #d1d1d6; border-radius: 10px; padding: 2px; margin: 12px 16px; }
+        .tabs button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; background: transparent; }
         .tabs button.active { background: #fff; color: var(--blue); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        /* Table Area */
+        /* Table Area (佔滿剩餘空間且可捲動) */
         .table-container {
-            flex: 1; overflow-y: auto; background: #fff; border-radius: 16px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.02); margin-bottom: 15px;
+            flex: 1; overflow-y: auto; background: #fff; border-radius: 16px; margin: 0 16px 15px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
         }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { 
-            background: #f8f8f9; position: sticky; top: 0; z-index: 5;
-            padding: 12px 5px; font-size: 13px; color: #888; border-bottom: 1px solid #eee;
-        }
-        td { padding: 12px 5px; text-align: center; font-size: 15px; border-bottom: 0.5px solid #f0f0f0; }
-        
-        .row-new { animation: highlight 0.5s ease-out; }
-        @keyframes highlight { from { background: #eef6ff; } to { background: #fff; } }
-
+        th, td { padding: 12px 5px; text-align: center; font-size: 14px; border-bottom: 0.5px solid #f0f0f0; }
+        th { background: #f8f8f9; position: sticky; top: 0; z-index: 5; font-size: 13px; color: #888; }
         .diff-plus { color: var(--red); font-size: 13px; font-weight: 600; }
         .diff-minus { color: var(--green); font-size: 13px; font-weight: 600; }
 
         /* 直覺刪除按鈕 */
         .del-cell { width: 45px; }
-        .btn-del {
-            width: 28px; height: 28px; border-radius: 50%; border: none;
-            background: #ff3b3020; color: var(--red);
-            font-size: 18px; font-weight: bold; line-height: 1;
-            cursor: pointer; transition: 0.2s;
-        }
+        .btn-del { width: 28px; height: 28px; border-radius: 50%; border: none; background: #ff3b3020; color: var(--red); font-size: 18px; font-weight: bold; line-height: 1; cursor: pointer; }
         .btn-del:active { background: var(--red); color: #fff; transform: scale(0.9); }
 
-        /* Input Controls */
-        .section { display: none; background: #fff; padding: 15px; border-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
+        /* 輸入/控制面板 (固定在底部，確保與瀏覽器 UI 分離) */
+        .control-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            /* 關鍵修正: 確保下方有足夠的安全區域邊距 */
+            padding-bottom: env(safe-area-inset-bottom);
+            background: var(--bg); /* 使用背景色讓視覺連貫 */
+        }
+        .section { display: none; background: #fff; padding: 15px 16px; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
         .section.active { display: block; }
         
         .time-box { display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
-        .time-input {
-            width: 80px; height: 60px; line-height: 60px; font-size: 36px; font-weight: 700;
-            text-align: center; border: 2.5px solid #e5e5ea; border-radius: 14px; background: #f9f9f9;
-        }
+        .time-input { width: 80px; height: 60px; line-height: 60px; font-size: 36px; font-weight: 700; text-align: center; border: 2.5px solid #e5e5ea; border-radius: 14px; background: #f9f9f9; }
         .time-input.active { border-color: var(--blue); background: #fff; box-shadow: 0 0 10px rgba(0,122,255,0.1); }
         .sep { margin: 0 8px; font-size: 24px; color: #ccc; }
 
         .actions { display: flex; gap: 10px; margin-bottom: 12px; }
-        .actions button {
-            flex: 1; padding: 16px; border: none; border-radius: 14px;
-            font-size: 16px; font-weight: 700; color: #fff;
-        }
+        .actions button { flex: 1; padding: 16px; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; color: #fff; }
         .btn-blue { background: var(--blue); }
         .btn-gray { background: #636366; }
         .btn-orange { background: var(--orange); }
 
         /* Keypad */
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .keypad button {
-            padding: 18px; border: none; border-radius: 12px; font-size: 24px; font-weight: 500;
-            background: #f2f2f7; color: #000; transition: 0.1s;
-        }
-        .keypad button:active { background: #d1d1d6; }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding-bottom: 10px; }
+        .keypad button { padding: 18px; border: none; border-radius: 12px; font-size: 24px; font-weight: 500; background: #f2f2f7; }
         .keypad .k-del { color: var(--red); font-size: 20px; }
         .keypad .k-ok { background: var(--blue); color: #fff; }
     </style>
@@ -95,7 +85,10 @@
 <body>
 
 <div class="container">
-    <h1>分段記錄器</h1>
+    <header>
+        <h1>分段記錄器</h1>
+        <span class="tip">點擊列表右側紅色 "−" 即可刪除單筆紀錄</span>
+    </header>
 
     <div class="tabs">
         <button id="tabManual" class="active">手動輸入</button>
@@ -118,38 +111,41 @@
         </table>
     </div>
 
-    <!-- 手動模式 -->
-    <div id="manualPanel" class="section active">
-        <div class="time-box">
-            <div id="m_min" class="time-input active">00</div><span class="sep">:</span>
-            <div id="m_sec" class="time-input">00</div><span class="sep">.</span>
-            <div id="m_ms" class="time-input">00</div>
+    <!-- 控制面板容器 -->
+    <div class="control-panel">
+        <!-- 手動模式內容 -->
+        <div id="manualPanel" class="section active">
+            <div class="time-box">
+                <div id="m_min" class="time-input active">00</div><span class="sep">:</span>
+                <div id="m_sec" class="time-input">00</div><span class="sep">.</span>
+                <div id="m_ms" class="time-input">00</div>
+            </div>
+            <div class="actions">
+                <button id="btnManualSave" class="btn-blue">新增紀錄</button>
+                <button id="btnManualClear" class="btn-gray">全部清空</button>
+            </div>
+            <div class="keypad">
+                <button class="k-num">7</button><button class="k-num">8</button><button class="k-num">9</button>
+                <button class="k-num">4</button><button class="k-num">5</button><button class="k-num">6</button>
+                <button class="k-num">1</button><button class="k-num">2</button><button class="k-num">3</button>
+                <button class="k-del" id="keyDel">⌫</button>
+                <button class="k-num">0</button>
+                <button class="k-ok" id="keySave">✓</button>
+            </div>
         </div>
-        <div class="actions">
-            <button id="btnManualSave" class="btn-blue">新增紀錄</button>
-            <button id="btnManualClear" class="btn-gray">全部清空</button>
-        </div>
-        <div class="keypad">
-            <button class="k-num">7</button><button class="k-num">8</button><button class="k-num">9</button>
-            <button class="k-num">4</button><button class="k-num">5</button><button class="k-num">6</button>
-            <button class="k-num">1</button><button class="k-num">2</button><button class="k-num">3</button>
-            <button class="k-del" id="keyDel">⌫</button>
-            <button class="k-num">0</button>
-            <button class="k-ok" id="keySave">✓</button>
-        </div>
-    </div>
 
-    <!-- 碼錶模式 -->
-    <div id="swPanel" class="section">
-        <div style="text-align:center; padding: 20px 0;">
-            <div id="swDisplay" style="font-size: 56px; font-weight: 800; font-variant-numeric: tabular-nums;">00:00.00</div>
+        <!-- 碼錶模式內容 -->
+        <div id="swPanel" class="section">
+            <div style="text-align:center; padding: 10px 0 20px;">
+                <div id="swDisplay" style="font-size: 56px; font-weight: 800; font-variant-numeric: tabular-nums;">00:00.00</div>
+            </div>
+            <div class="actions">
+                <button id="swStart" class="btn-blue">▶ 開始</button>
+                <button id="swLap" class="btn-orange">⏱ 分段</button>
+                <button id="swStop" class="btn-gray">⏹ 停止</button>
+            </div>
+            <button id="btnSWClear" style="width:100%; padding:14px; border:none; background:none; color:var(--gray); font-size:14px; font-weight:600;">🗑 清除碼錶紀錄</button>
         </div>
-        <div class="actions">
-            <button id="swStart" class="btn-blue">▶ 開始</button>
-            <button id="swLap" class="btn-orange">⏱ 分段</button>
-            <button id="swStop" class="btn-gray">⏹ 停止</button>
-        </div>
-        <button id="btnSWClear" style="width:100%; padding:14px; border:none; background:none; color:var(--gray); font-size:14px; font-weight:600;">🗑 清除碼錶紀錄</button>
     </div>
 </div>
 
@@ -159,12 +155,12 @@
     let manualData = [];
     let swData = [];
 
-    // 手動輸入
+    // 手動輸入狀態
     const fields = ["m_min", "m_sec", "m_ms"];
     let fieldIdx = 0;
     let freshField = true;
 
-    // 碼錶
+    // 碼錶狀態
     let run = false, startT = 0, elapsedT = 0, raf = null;
 
     /* 切換模式 */
@@ -191,10 +187,19 @@
     document.querySelectorAll(".k-num").forEach(b => {
         b.onclick = () => {
             let f = $(fields[fieldIdx]);
-            f.innerText = freshField ? "0" + b.innerText : f.innerText.charAt(1) + b.innerText;
-            freshField = false;
-            if (f.innerText.length === 2) {
-                if (fieldIdx < 2) { fieldIdx++; freshField = true; }
+            // 修正輸入邏輯：允許輸入一位數，但直到兩位數才跳轉
+            if (freshField) {
+                f.innerText = b.innerText;
+                freshField = false;
+            } else {
+                f.innerText = f.innerText.slice(1) + b.innerText;
+            }
+            
+            if (f.innerText.length === 2 && fieldIdx < 2) {
+                fieldIdx++;
+                freshField = true;
+            } else if (f.innerText.length === 2 && fieldIdx === 2) {
+                 freshField = false; // 毫秒輸入滿兩位後停留在原地
             }
             updateFocus();
         };
@@ -213,6 +218,7 @@
         manualData.push({ id: Date.now(), total: t });
         manualData.sort((a,b) => a.total - b.total);
         render();
+        // 清空並重置輸入狀態
         fields.forEach(id => $(id).innerText = "00");
         fieldIdx = 0; freshField = true; updateFocus();
     };
@@ -234,7 +240,6 @@
         if(elapsedT > 0) {
             swData.push({ id: Date.now(), total: elapsedT });
             render();
-            // 自動滾動到底部
             setTimeout(() => { $("scrollArea").scrollTop = $("scrollArea").scrollHeight; }, 10);
         }
     };
@@ -246,11 +251,16 @@
         const body = $("tbody");
         body.innerHTML = "";
 
+        if (list.length === 0) {
+            body.innerHTML = `<tr><td colspan="5" style="padding:40px; color:#999;">尚無數據</td></tr>`;
+            return;
+        }
+
         list.forEach((item, i) => {
             const lap = i === 0 ? item.total : item.total - list[i-1].total;
             let dStr = "-", dCls = "";
             if(i > 0) {
-                const prevLap = (i === 1) ? list[0].total : (list[i-1].total - list[i-2].total);
+                const prevLap = (i === 1) ? list.total : (list[i-1].total - list[i-2].total);
                 const diff = lap - prevLap;
                 dStr = (diff > 0 ? "+" : "") + diff.toFixed(2);
                 dCls = diff > 0 ? "diff-plus" : "diff-minus";
@@ -268,6 +278,7 @@
         });
     }
 
+    // 讓 JS 函數可以在 HTML 中被調用
     window.remove = (id) => {
         if(currentMode === "manual") manualData = manualData.filter(x => x.id !== id);
         else swData = swData.filter(x => x.id !== id);
@@ -282,6 +293,5 @@
 
     updateView();
 </script>
-
 </body>
 </html>
