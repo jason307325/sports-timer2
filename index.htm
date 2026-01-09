@@ -6,101 +6,99 @@
 content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>選手分段秒差計算器 2026</title>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0071e3">
-
 <style>
 :root{
-    --apple-blue:#0071e3;
-    --apple-orange:#ff9500;
-    --apple-gray:#8e8e93;
-    --apple-bg:#f2f2f7;
+    --blue:#0071e3;
+    --orange:#ff9500;
+    --gray:#8e8e93;
+    --bg:#f2f2f7;
 }
 html,body{
-    margin:0;height:100%;
-    background:var(--apple-bg);
-    touch-action:manipulation;
-    user-select:none;
+    margin:0;height:100%;background:var(--bg);
+    touch-action:manipulation;user-select:none;
 }
 body{
     display:flex;justify-content:center;
-    font-family:-apple-system;
+    font-family:-apple-system,BlinkMacSystemFont;
 }
 .container{
     width:100%;max-width:500px;height:100svh;
     background:#fff;display:flex;flex-direction:column;
     padding:8px 12px;box-sizing:border-box;
 }
-header{text-align:center}
-h2{margin:4px 0;font-size:18px}
+h2{text-align:center;margin:4px 0;font-size:18px}
 
+/* ===== 時間顯示 ===== */
 .time-box{
     display:flex;justify-content:center;align-items:center;
-    font-variant-numeric:tabular-nums;
+    font-variant-numeric:tabular-nums;margin-bottom:6px;
 }
 .time{
-    width:80px;height:64px;line-height:64px;
-    text-align:center;font-size:40px;font-weight:bold;
-    border:2px solid #ccc;border-radius:12px;
+    width:72px;height:56px;line-height:56px;
+    text-align:center;font-size:36px;font-weight:bold;
+    border:2px solid #ccc;border-radius:10px;
 }
-.sep{margin:0 6px;font-size:32px;color:#aaa}
+.sep{margin:0 6px;font-size:28px;color:#aaa}
 
+/* ===== 碼錶控制 ===== */
 .stopwatch{
-    display:flex;gap:6px;margin:6px 0;
+    display:flex;gap:6px;margin-bottom:6px;
 }
 .stopwatch button{
     flex:1;padding:10px;border:none;border-radius:8px;
     font-size:14px;font-weight:bold;
 }
-.btn-blue{background:var(--apple-blue);color:#fff}
-.btn-orange{background:var(--apple-orange);color:#fff}
-.btn-gray{background:var(--apple-gray);color:#fff}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-orange{background:var(--orange);color:#fff}
+.btn-gray{background:var(--gray);color:#fff}
 
+/* ===== 表格 ===== */
 .table-container{
-    flex:1;overflow:auto;border:1px solid #eee;
-    border-radius:10px;margin-bottom:6px;
+    flex:1;overflow-y:auto;
+    border:1px solid #eee;border-radius:10px;
+    margin-bottom:6px;
 }
 table{width:100%;border-collapse:collapse}
 th,td{
-    padding:10px 4px;text-align:center;
+    padding:8px 4px;text-align:center;
     border-bottom:1px solid #eee;
 }
-th{background:#f2f2f7;position:sticky;top:0}
-.time-cell{color:var(--apple-blue);font-weight:700}
+th{
+    background:#f2f2f7;position:sticky;top:0;
+}
+.time-cell{color:var(--blue);font-weight:700}
 .split-cell{font-weight:500}
 .diff-plus{color:#ff3b30;font-weight:bold}
 .diff-minus{color:#34c759;font-weight:bold}
 
-.actions{
-    display:flex;gap:6px;margin-bottom:6px;
-}
+/* ===== 功能鍵 ===== */
+.actions{display:flex;gap:6px;margin-bottom:6px}
 .actions button{
-    flex:1;padding:14px;border:none;border-radius:10px;
-    font-size:18px;font-weight:bold;
+    flex:1;padding:12px;border:none;border-radius:10px;
+    font-size:16px;font-weight:bold;
 }
-.btn-main{background:var(--apple-blue);color:#fff}
-.btn-clear{background:var(--apple-gray);color:#fff}
+.btn-main{background:var(--blue);color:#fff}
+.btn-clear{background:var(--gray);color:#fff}
 
+/* ===== 縮小鍵盤 ===== */
 .keypad{
     display:grid;grid-template-columns:repeat(3,1fr);
-    gap:8px;
+    gap:6px;
 }
 .keypad button{
-    font-size:24px;padding:14px;
-    border-radius:12px;background:#e5e5ea;
+    font-size:20px;padding:10px 0;
+    border:none;border-radius:10px;
+    background:#e5e5ea;
 }
 .keypad .delete{background:#ff3b30;color:#fff}
-.keypad .action{background:var(--apple-blue);color:#fff}
-.keypad.disabled{opacity:.4;pointer-events:none}
+.keypad .action{background:var(--blue);color:#fff}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<header>
 <h2>🏊 選手分段秒差計算器 2026</h2>
-</header>
 
 <div class="time-box">
 <div id="min" class="time">00</div><span class="sep">:</span>
@@ -108,23 +106,18 @@ th{background:#f2f2f7;position:sticky;top:0}
 <div id="ms" class="time">00</div>
 </div>
 
-<!-- 🆕 碼錶控制 -->
 <div class="stopwatch">
-<button id="swStart" class="btn-blue">▶︎ 開始</button>
-<button id="swPause" class="btn-orange">⏸ 暫停</button>
-<button id="swLap" class="btn-blue">⏱ 分段</button>
-<button id="swStop" class="btn-gray">⏹ 結束</button>
+<button id="btnStart" class="btn-blue">▶︎ 開始</button>
+<button id="btnPause" class="btn-orange">⏸ 暫停</button>
+<button id="btnLap" class="btn-blue">⏱ 分段</button>
+<button id="btnStop" class="btn-gray">⏹ 結束</button>
 </div>
 
-<!-- 📊 分段紀錄表（完整回復） -->
 <div class="table-container">
 <table>
 <thead>
 <tr>
-<th>段次</th>
-<th>總時間</th>
-<th>分段</th>
-<th>秒差</th>
+<th>段</th><th>總時間</th><th>分段</th><th>秒差</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
@@ -140,7 +133,8 @@ th{background:#f2f2f7;position:sticky;top:0}
 <button data="7">7</button><button data="8">8</button><button data="9">9</button>
 <button data="4">4</button><button data="5">5</button><button data="6">6</button>
 <button data="1">1</button><button data="2">2</button><button data="3">3</button>
-<button class="delete" data="del">⌫</button><button data="0">0</button>
+<button class="delete" data="del">⌫</button>
+<button data="0">0</button>
 <button class="action" data="save">✓</button>
 </div>
 
@@ -149,46 +143,60 @@ th{background:#f2f2f7;position:sticky;top:0}
 <script>
 const $=id=>document.getElementById(id);
 const fields=["min","sec","ms"];
-let records=[], idx=0;
+let idx=0, firstInput=true;
+let records=[];
 
-/* ===== 手動輸入 ===== */
+/* ===== 手動輸入（完整回復） ===== */
 document.querySelectorAll("#keypad button").forEach(b=>{
-    b.onclick=()=>{
-        const v=b.dataset;
-        if(v.save) saveRecord();
-        else if(v.del) clearInput();
-        else inputNum(b.textContent);
-    };
+    b.addEventListener("click",()=>{
+        const v=b.getAttribute("data");
+        if(v==="del") deleteLast();
+        else if(v==="save") saveRecord();
+        else inputNum(v);
+    });
 });
 
 function inputNum(n){
     const f=$(fields[idx]);
-    f.textContent=(f.textContent+n).slice(-2);
-    idx=(idx+1)%3;
-}
-
-function saveRecord(){
-    const t=+$("min").textContent*60
-        + +$("sec").textContent
-        + +$("ms").textContent/100;
-    if(t>0){
-        records.push({total:t});
-        renderTable();
+    f.textContent=firstInput?n:f.textContent+n;
+    if(f.textContent.length>2) f.textContent=f.textContent.slice(-2);
+    firstInput=false;
+    if(f.textContent.length===2){
+        idx=(idx+1)%3;
+        firstInput=true;
     }
 }
 
-function clearInput(){
-    fields.forEach(f=>$(f).textContent="00");
-    idx=0;
+function deleteLast(){
+    $(fields[idx]).textContent="00";
+    firstInput=true;
 }
 
-/* ===== 碼錶 ===== */
-let swRunning=false, swStart=0, swElapsed=0, swRAF=null;
+function saveRecord(){
+    if(records.length>=30) return;
+    const t=+$("min").textContent*60
+        + +$("sec").textContent
+        + +$("ms").textContent/100;
+    if(t<=0) return;
+    records.push({total:t});
+    renderTable();
+}
 
-function swTick(){
-    swElapsed=(performance.now()-swStart)/1000;
-    setTime(swElapsed);
-    swRAF=requestAnimationFrame(swTick);
+clear.onclick=()=>{
+    records=[];
+    renderTable();
+};
+
+/* ===== 碼錶（已修正） ===== */
+let running=false;
+let startTime=0;
+let elapsed=0;
+let raf=null;
+
+function tick(){
+    elapsed=(performance.now()-startTime)/1000;
+    setTime(elapsed);
+    raf=requestAnimationFrame(tick);
 }
 
 function setTime(t){
@@ -197,23 +205,23 @@ function setTime(t){
     ms.textContent=String(Math.floor((t%1)*100)).padStart(2,"0");
 }
 
-swStart.onclick=()=>{
-    if(swRunning) return;
-    swRunning=true;
-    swStart=performance.now()-swElapsed*1000;
-    swTick();
+btnStart.onclick=()=>{
+    if(running) return;
+    running=true;
+    startTime=performance.now()-elapsed*1000;
+    tick();
 };
-swPause.onclick=()=>{
-    swRunning=false;
-    cancelAnimationFrame(swRAF);
+btnPause.onclick=()=>{
+    running=false;
+    cancelAnimationFrame(raf);
 };
-swLap.onclick=()=>{
-    if(swRunning) saveRecord();
+btnLap.onclick=()=>{
+    if(running) saveRecord();
 };
-swStop.onclick=()=>{
-    swRunning=false;
-    cancelAnimationFrame(swRAF);
-    swElapsed=0;
+btnStop.onclick=()=>{
+    running=false;
+    cancelAnimationFrame(raf);
+    elapsed=0;
     setTime(0);
 };
 
@@ -225,7 +233,9 @@ function renderTable(){
         const split=i?r.total-records[i-1].total:r.total;
         let diff="-",cls="";
         if(i>0){
-            const prev=i>1?records[i-1].total-records[i-2].total:records[i-1].total;
+            const prev=i>1
+                ?records[i-1].total-records[i-2].total
+                :records[i-1].total;
             const d=split-prev;
             diff=(d>0?"+":"")+d.toFixed(2);
             cls=d>0?"diff-plus":"diff-minus";
@@ -233,23 +243,18 @@ function renderTable(){
         tbody.innerHTML+=`
         <tr>
         <td>${i+1}</td>
-        <td class="time-cell">${formatTime(r.total)}</td>
-        <td class="split-cell">${formatTime(split)}</td>
+        <td class="time-cell">${fmt(r.total)}</td>
+        <td class="split-cell">${fmt(split)}</td>
         <td class="${cls}">${diff}</td>
         </tr>`;
     });
 }
 
-function formatTime(s){
+function fmt(s){
     const m=Math.floor(s/60);
     const ss=(s%60).toFixed(2).padStart(5,"0");
     return `${String(m).padStart(2,"0")}:${ss}`;
 }
-
-clear.onclick=()=>{
-    records=[];
-    renderTable();
-};
 </script>
 
 </body>
