@@ -2,305 +2,189 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>選手分段秒差計算器 2026</title>
 
-<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0071e3">
 
 <style>
 :root{
-    --apple-blue:#0071e3;
-    --apple-orange:#ff9500;
-    --apple-gray:#8e8e93;
-    --apple-bg:#f2f2f7;
+    --blue:#0071e3;
+    --orange:#ff9500;
+    --gray:#8e8e93;
+    --bg:#f2f2f7;
 }
-
 html,body{
-    margin:0; padding:0; height:100%;
-    background:var(--apple-bg);
-    touch-action:manipulation;
-    user-select:none;
-    overscroll-behavior:none;
+    margin:0;height:100%;background:var(--bg);
+    touch-action:manipulation;user-select:none;
 }
-
-body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    display:flex; justify-content:center;
-}
-
+body{display:flex;justify-content:center;font-family:-apple-system}
 .container{
-    width:100%; max-width:500px; height:100svh;
-    background:#fff; display:flex; flex-direction:column;
-    padding:8px 12px env(safe-area-inset-bottom);
-    box-sizing:border-box;
+    width:100%;max-width:500px;height:100svh;
+    background:#fff;display:flex;flex-direction:column;
+    padding:8px 12px;box-sizing:border-box;
 }
-
 header{text-align:center}
-h2{margin:2px 0;font-size:18px}
-.hint-text{font-size:12px;color:var(--apple-blue);margin-bottom:4px}
-
-/* --- 輸入區放大 --- */
-.input-section{
-    border:1.5px solid #e5e5ea; border-radius:12px;
-    padding:12px 8px; margin-bottom:8px;
-    background: #ffffff;
-}
-
+h2{margin:4px 0;font-size:18px}
 .status-badge{
-    font-size:12px; padding:3px 8px; border-radius:4px;
-    background:var(--apple-gray); color:#fff; display:inline-block;
-    margin-bottom:8px;
+    font-size:12px;padding:4px 8px;border-radius:4px;
+    background:var(--gray);color:#fff;display:inline-block;
 }
-.status-badge.edit{background:var(--apple-orange)}
+.status-badge.edit{background:var(--orange)}
+.status-badge.run{background:var(--blue)}
 
 .time-box{
-    display:flex; justify-content:center; align-items:center; 
-    font-variant-numeric:tabular-nums;
+    display:flex;justify-content:center;align-items:center;
+    margin:10px 0;font-variant-numeric:tabular-nums;
 }
-
 .time{
-    /* 顯著放大輸入格子寬度與高度 */
-    width:80px; height:64px; line-height:64px; 
-    text-align:center; font-size:40px; font-weight:bold;
-    border:2.5px solid #d1d1d6; border-radius:12px; background:#fff;
-    transition: all 0.2s;
+    width:80px;height:64px;line-height:64px;
+    text-align:center;font-size:40px;font-weight:bold;
+    border:2px solid #ccc;border-radius:12px;
 }
-.time.active{border-color:var(--apple-blue); background:#eef3ff; box-shadow: 0 0 8px rgba(0,113,227,0.2);}
-.time.will-replace{color:var(--apple-orange); background:#fff9f0;}
-.sep{margin:0 6px; color:#aaa; font-size:32px; font-weight: bold;}
+.sep{margin:0 6px;font-size:32px;color:#aaa}
 
-/* --- 成績表格區優化 --- */
+.actions, .stopwatch{
+    display:flex;gap:6px;margin-bottom:8px;
+}
+button{
+    flex:1;padding:14px;border:none;border-radius:10px;
+    font-size:18px;font-weight:bold;
+}
+.btn-main{background:var(--blue);color:#fff}
+.btn-orange{background:var(--orange);color:#fff}
+.btn-gray{background:var(--gray);color:#fff}
+
 .table-container{
-    flex:1; overflow-y:auto; border:1px solid #e5e5ea; border-radius:10px; 
-    margin-bottom:8px; background:#fcfcfc;
+    flex:1;overflow:auto;border:1px solid #eee;border-radius:10px;
 }
-
-table{width:100%; border-collapse:collapse; table-layout: fixed;}
-table th{
-    background:#f2f2f7; position:sticky; top:0; z-index:10;
-    font-size:14px; color:#666; padding:12px 4px;
-    border-bottom: 1px solid #e5e5ea;
+table{width:100%;border-collapse:collapse}
+th,td{
+    padding:12px 4px;text-align:center;border-bottom:1px solid #eee;
 }
+th{background:#f2f2f7;position:sticky;top:0}
+.time-cell{color:var(--blue);font-weight:700;font-size:18px}
+.split-cell{font-size:17px}
+.diff-plus{color:#ff3b30;font-weight:bold}
+.diff-minus{color:#34c759;font-weight:bold}
 
-table td{
-    padding:14px 4px; text-align:center;
-    border-bottom: 1px solid #f0f0f0;
-    font-variant-numeric: tabular-nums;
+.keypad{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
 }
-
-/* 放大顯示字幕 */
-.col-rank { width: 15%; font-size: 14px; color: #888; }
-.time-cell { 
-    color: var(--apple-blue); 
-    font-weight: 700; 
-    font-size: 20px; /* 成績字體放大 */
-    text-decoration: underline; 
+.keypad button{
+    font-size:24px;padding:14px;border-radius:12px;
+    background:#e5e5ea;
 }
-.split-cell {
-    font-size: 19px; /* 分段字體放大 */
-    font-weight: 500;
-    color: #333;
-}
-.diff-plus{ color:#ff3b30; font-weight:bold; font-size:18px; }
-.diff-minus{ color:#34c759; font-weight:bold; font-size:18px; }
-
-/* --- 底部按鈕與鍵盤 --- */
-.actions{display:flex; gap:6px; margin-bottom:8px;}
-.actions button{flex:1; padding:14px; border:none; border-radius:10px; font-size:18px; font-weight:bold;}
-.btn-main{background:var(--apple-blue); color:#fff;}
-.btn-main.is-edit{background:var(--apple-orange);}
-.btn-clear{background:var(--apple-gray); color:#fff;}
-
-.keypad{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
-.keypad button{font-size:24px; padding:14px 0; border:none; border-radius:12px; background:#e5e5ea; color: #000;}
-.keypad button:active{background:#d1d1d6;}
-.keypad .delete{background:#ff3b30; color:#fff;}
-.keypad .action{background:var(--apple-blue); color:#fff;}
+.keypad .delete{background:#ff3b30;color:#fff}
+.keypad .action{background:var(--blue);color:#fff}
 </style>
 </head>
 
 <body>
 <div class="container">
-
 <header>
-    <h2>🏊 選手分段秒差計算器 2026</h2>
-    <div class="hint-text">點擊表格「總時間」可直接修正成績</div>
+<h2>🏊 分段秒差計算器 2026</h2>
+<div id="status" class="status-badge">新增模式</div>
 </header>
 
-<div class="input-section">
-    <div id="status" class="status-badge">新增模式</div>
-    <div class="time-box">
-        <div id="min" class="time">00</div><span class="sep">:</span>
-        <div id="sec" class="time">00</div><span class="sep">.</span>
-        <div id="ms" class="time">00</div>
-    </div>
+<div class="time-box">
+<div id="min" class="time">00</div><span class="sep">:</span>
+<div id="sec" class="time">00</div><span class="sep">.</span>
+<div id="ms" class="time">00</div>
+</div>
+
+<div class="stopwatch">
+<button id="start" class="btn-main">▶︎ 開始</button>
+<button id="lap" class="btn-orange">⏱ 分段</button>
+<button id="reset" class="btn-gray">⏹ 重置</button>
 </div>
 
 <div class="table-container">
 <table>
 <thead>
-<tr>
-<th style="width:15%">段次</th>
-<th style="width:30%">總時間</th>
-<th style="width:30%">分段</th>
-<th style="width:25%">秒差</th>
-</tr>
+<tr><th>段</th><th>總時間</th><th>分段</th><th>秒差</th></tr>
 </thead>
 <tbody id="tbody"></tbody>
 </table>
 </div>
 
-<div class="actions">
-<button id="save" class="btn-main">✓ 新增紀錄</button>
-<button id="clear" class="btn-clear">🗑 清除</button>
-</div>
-
-<div class="keypad" id="keypad">
-<button data="7">7</button><button data="8">8</button><button data="9">9</button>
-<button data="4">4</button><button data="5">5</button><button data="6">6</button>
-<button data="1">1</button><button data="2">2</button><button data="3">3</button>
-<button class="delete" data="del">⌫</button><button data="0">0</button>
-<button class="action" data="save">✓</button>
-</div>
-
-</div>
-
 <script>
-const fields=["min","sec","ms"];
-let idx=0, records=[], editRecord=null, firstInput=true;
-
 const $=id=>document.getElementById(id);
-const bind=(el,fn)=>{
-    el.addEventListener("touchstart",e=>{e.preventDefault();fn();},{passive:false});
-    el.addEventListener("click",fn);
-};
+let records=[],running=false,startTime=0,raf=0;
 
-// 切換輸入欄位
-fields.forEach((f,i)=>bind($(f),()=>{idx=i;firstInput=true;updateHighlight()}));
+function updateDisplay(t){
+    const m=Math.floor(t/60);
+    const s=Math.floor(t%60);
+    const ms=Math.floor((t%1)*100);
+    min.textContent=String(m).padStart(2,"0");
+    sec.textContent=String(s).padStart(2,"0");
+    ms.textContent=String(ms).padStart(2,"0");
+}
 
-// 鍵盤事件
-document.querySelectorAll("#keypad button").forEach(b=>{
-    bind(b,()=>{
-        const v=b.getAttribute("data");
-        if(v==="del") deleteLast();
-        else if(v==="save") saveRecord();
-        else inputNum(v);
-    });
-});
+function tick(){
+    const t=(performance.now()-startTime)/1000;
+    updateDisplay(t);
+    raf=requestAnimationFrame(tick);
+}
 
-bind($("save"),saveRecord);
-bind($("clear"),()=>{if(confirm("確定要清除所有紀錄嗎？")){records=[];editRecord=null;renderTable();clearInput();}});
-
-function updateHighlight(){
-    fields.forEach((f,i)=>{
-        $(f).className="time"+(i===idx?" active":"")+(i===idx&&firstInput?" will-replace":"");
-    });
-    const status=$("status");
-    if(editRecord){
-        status.textContent="編輯模式";
-        status.className="status-badge edit";
-        $("save").textContent="✓ 更新紀錄";
-        $("save").classList.add("is-edit");
-    } else {
+start.onclick=()=>{
+    if(!running){
+        running=true;
+        startTime=performance.now()-
+            ((+min.textContent)*60+(+sec.textContent)+(+ms.textContent)/100)*1000;
+        tick();
+        status.textContent="碼錶進行中";
+        status.className="status-badge run";
+        start.textContent="⏸ 暫停";
+    }else{
+        running=false;
+        cancelAnimationFrame(raf);
+        start.textContent="▶︎ 開始";
         status.textContent="新增模式";
         status.className="status-badge";
-        $("save").textContent="✓ 新增紀錄";
-        $("save").classList.remove("is-edit");
     }
+};
+
+lap.onclick=()=>{
+    if(!running)return;
+    const t=(performance.now()-startTime)/1000;
+    records.push({total:t});
+    render();
+};
+
+reset.onclick=()=>{
+    running=false;
+    cancelAnimationFrame(raf);
+    updateDisplay(0);
+    start.textContent="▶︎ 開始";
+};
+
+function format(t){
+    const m=Math.floor(t/60);
+    const s=(t%60).toFixed(2).padStart(5,"0");
+    return `${String(m).padStart(2,"0")}:${s}`;
 }
 
-function inputNum(n){
-    const f=$(fields[idx]);
-    // 如果是該格第一個數字則取代，否則累加
-    f.textContent=firstInput?n:f.textContent+n;
-    if(f.textContent.length > 2) f.textContent = f.textContent.slice(-2);
-    firstInput=false;
-    
-    // 輸入滿兩位自動跳下一格
-    if(f.textContent.length===2){
-        idx=(idx+1)%3;
-        firstInput=true;
-    }
-    updateHighlight();
-}
-
-function deleteLast(){ 
-    $(fields[idx]).textContent="00"; 
-    firstInput=true; 
-    updateHighlight(); 
-}
-
-function saveRecord(){
-    const t=+$("min").textContent*60 + +$("sec").textContent + +$("ms").textContent/100;
-    if(t <= 0) return;
-
-    if(editRecord){
-        editRecord.total=t;
-        editRecord=null;
-    } else {
-        records.push({id:Date.now(), total:t});
-    }
-    renderTable();
-    clearInput();
-}
-
-function renderTable(){
-    // 依總時間排序
+function render(){
     records.sort((a,b)=>a.total-b.total);
-    const tbody=$("tbody");
     tbody.innerHTML="";
-    
     records.forEach((r,i)=>{
-        const split = i === 0 ? r.total : r.total - records[i-1].total;
-        let diffText="-", diffCls="";
-        
-        if(i > 0){
-            const prevSplit = records[i-1].total - (records[i-2] ? records[i-2].total : 0);
-            const diff = split - prevSplit;
-            diffText = (diff > 0 ? "+" : "") + diff.toFixed(2);
-            diffCls = diff > 0 ? "diff-plus" : "diff-minus";
+        const split=i? r.total-records[i-1].total:r.total;
+        let diff="-";
+        if(i>1){
+            diff=(split-(records[i-1].total-records[i-2].total)).toFixed(2);
         }
-
-        const tr=document.createElement("tr");
-        tr.innerHTML=`
-            <td class="col-rank">${i+1}</td>
-            <td class="time-cell">${formatTime(r.total)}</td>
-            <td class="split-cell">${formatTime(split)}</td>
-            <td class="${diffCls}">${diffText}</td>
-        `;
-        
-        // 點擊成績進入編輯
-        bind(tr.querySelector(".time-cell"),()=>{
-            editRecord=r;
-            loadRecordToInput(r);
-        });
-        
-        tbody.appendChild(tr);
+        tbody.innerHTML+=`
+        <tr>
+        <td>${i+1}</td>
+        <td class="time-cell">${format(r.total)}</td>
+        <td class="split-cell">${format(split)}</td>
+        <td>${diff}</td>
+        </tr>`;
     });
 }
-
-function loadRecordToInput(r){
-    $("min").textContent=Math.floor(r.total/60).toString().padStart(2,"0");
-    $("sec").textContent=Math.floor(r.total%60).toString().padStart(2,"0");
-    $("ms").textContent=Math.round((r.total%1)*100).toString().padStart(2,"0");
-    idx=0; firstInput=true; updateHighlight();
-}
-
-function formatTime(s){
-    const m=Math.floor(s/60);
-    const ss=(s%60).toFixed(2).padStart(5,"0");
-    return `${m.toString().padStart(2,"0")}:${ss}`;
-}
-
-function clearInput(){
-    fields.forEach(f=>$(f).textContent="00");
-    idx=0; firstInput=true; updateHighlight();
-}
-
-updateHighlight();
 </script>
-
+</div>
 </body>
 </html>
