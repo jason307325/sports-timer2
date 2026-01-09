@@ -8,71 +8,88 @@
         :root {
             --m-bg: #f5f2ed;
             --m-panel: #ffffff;
-            --m-text: #4a4e69;
-            --m-primary: #e07a5f;
-            --m-secondary: #81b29a;
-            --m-accent: #5b9bd5;
+            --m-text: #4a4e69; /* 深灰藍 */
+            --m-primary: #e07a5f; /* 莫蘭迪珊瑚 */
+            --m-secondary: #81b29a; /* 莫蘭迪綠 */
+            --m-accent: #5b9bd5; /* 莫蘭迪藍 */
             --m-orange: #f39c12;
             --m-red: #e74c3c;
-            --m-green: #27ae60;
+            --m-green: #2ecc71; /* 標準綠 */
         }
 
-        html, body { margin: 0; padding: 0; height: 100dvh; width: 100%; overflow: hidden; background: var(--m-bg); user-select: none; font-family: -apple-system, sans-serif; }
+        html, body { 
+            margin: 0; padding: 0; height: 100dvh; width: 100%; overflow: hidden; background: var(--m-bg); user-select: none; font-family: -apple-system, system-ui, sans-serif; 
+        }
+
         .app-container { display: flex; flex-direction: column; height: 100dvh; width: 100%; max-width: 850px; margin: 0 auto; box-sizing: border-box; }
 
         header { padding: calc(15px + env(safe-area-inset-top)) 20px 5px; flex-shrink: 0; display: flex; align-items: baseline; gap: 10px; }
         h1 { font-size: 1.2rem; margin: 0; color: var(--m-text); }
         .tip { font-size: 0.75rem; color: #9a8c98; }
 
-        .tabs { display: flex; background: #e0dbd5; border-radius: 12px; padding: 3px; margin: 8px 20px; height: 38px; flex-shrink: 0; }
-        .tabs button { flex: 1; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; background: transparent; color: #6d6875; cursor: pointer; }
-        .tabs button.active { background: #fff; color: var(--m-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .tabs { display: flex; background: #e0dbd5; border-radius: 10px; padding: 2px; margin: 8px 20px; height: 36px; flex-shrink: 0; }
+        .tabs button { flex: 1; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; background: transparent; color: #6d6875; cursor: pointer; }
+        .tabs button.active { background: #fff; color: var(--m-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0 20px 15px; gap: 10px; }
-        .table-container { flex: 1; background: var(--m-panel); border-radius: 20px; overflow-y: auto; border: 1px solid #ddd; }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0 20px 15px; gap: 8px; }
+        .table-container { flex: 1; background: var(--m-panel); border-radius: 18px; overflow-y: auto; border: 1px solid #ddd; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { background: #faf9f7; position: sticky; top: 0; z-index: 5; padding: 10px 5px; font-size: 13px; color: #9a8c98; border-bottom: 1px solid #eee; }
-        td { padding: 8px 5px; text-align: center; font-size: 15px; border-bottom: 1px solid #fcfcfc; height: 40px; color: var(--m-text); }
+        th { background: #faf9f7; position: sticky; top: 0; z-index: 5; padding: 9px 5px; font-size: 12px; color: #9a8c98; border-bottom: 1px solid #eee; }
+        td { padding: 7px 5px; text-align: center; font-size: 15px; border-bottom: 1px solid #fcfcfc; height: 38px; color: var(--m-text); }
 
-        .control-panel { background: #fff; border-radius: 24px; padding: 15px 20px calc(15px + env(safe-area-inset-bottom)); flex-shrink: 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.05); }
+        .control-panel { background: #fff; border-radius: 20px; padding: 12px 20px calc(12px + env(safe-area-inset-bottom)); flex-shrink: 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); }
         .section { display: none; }
         .section.active { display: block; }
 
-        /* 碼錶顯示：絕對等寬不晃動 */
-        .sw-view { text-align: center; padding: 10px 0; }
-        #swDisplay { font-family: "Courier New", Courier, monospace; font-size: clamp(2.8rem, 11vw, 4.2rem); font-weight: 800; font-variant-numeric: tabular-nums; color: var(--m-primary); letter-spacing: -1px; margin: 0; }
+        /* 碼錶顯示：防止跳動且顏色加深 */
+        .sw-view { text-align: center; padding: 8px 0; }
+        #swDisplay { 
+            font-family: "Courier New", Courier, monospace;
+            font-size: clamp(3.2rem, 12vw, 4.2rem); /* 稍微放大 */
+            font-weight: 800; 
+            font-variant-numeric: tabular-nums;
+            color: #3d405b; /* 深黑色 */
+            letter-spacing: -1px;
+            margin: 0;
+        }
 
-        /* 手動模式輸入 */
-        .time-box { display: flex; justify-content: center; align-items: center; margin-bottom: 12px; }
-        .time-input { width: 70px; height: 48px; line-height: 48px; font-size: 30px; font-weight: 700; text-align: center; border: 2px solid #eee; border-radius: 12px; background: #fafafa; }
+        /* 手動輸入 (進一步縮小) */
+        .time-box { display: flex; justify-content: center; align-items: center; margin-bottom: 8px; }
+        .time-input { width: 60px; height: 42px; line-height: 42px; font-size: 26px; font-weight: 700; text-align: center; border: 1.5px solid #eee; border-radius: 10px; background: #fafafa; }
         .time-input.active { border-color: var(--m-primary); background: #fff; }
-        .sep { margin: 0 8px; font-size: 24px; color: #ddd; }
+        .sep { margin: 0 6px; font-size: 20px; color: #ddd; }
+
+        .actions { display: flex; gap: 8px; margin-bottom: 8px; }
+        .actions button { flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; }
+        .btn-primary { background: var(--m-primary); }
+        .btn-secondary { background: #9a8c98; }
 
         /* 碼錶四鍵排列 */
-        .sw-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-        .sw-actions button { padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; color: #fff; cursor: pointer; }
+        .sw-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .sw-actions button { padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; }
         .btn-start { background: var(--m-green); }
         .btn-pause { background: var(--m-orange); }
         .btn-lap { background: var(--m-accent); }
         .btn-stop { background: var(--m-red); }
         .btn-lock { opacity: 0.4; pointer-events: none; }
 
-        /* 通用按鈕 */
-        .actions { display: flex; gap: 10px; margin-bottom: 12px; }
-        .actions button { flex: 1; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; color: #fff; cursor: pointer; }
-        .btn-primary { background: var(--m-primary); }
-        .btn-secondary { background: #9a8c98; }
-
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .keypad button { padding: 14px; border: none; border-radius: 10px; font-size: 20px; font-weight: 600; background: #fdfcfb; border: 1px solid #eee; }
+        /* 縮小的手動鍵盤 */
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .keypad button { padding: 10px; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; background: #fdfcfb; border: 1px solid #eee; }
         .keypad .k-del { background: #f2cc8f; border: none; color: #fff; }
         .keypad .k-ok { background: var(--m-primary); border: none; color: #fff; }
 
-        .btn-del-row { width: 26px; height: 26px; border-radius: 50%; border: none; background: #fff0ed; color: var(--m-red); font-weight: bold; cursor: pointer; }
-        .btn-clear-footer { width: 100%; padding: 10px; border: none; background: none; color: #9a8c98; font-size: 13px; cursor: pointer; margin-top: 5px; }
+        .btn-del-row { width: 24px; height: 24px; border-radius: 50%; border: none; background: #fff0ed; color: var(--m-red); font-weight: bold; cursor: pointer; }
+        .btn-clear-footer { width: 100%; padding: 8px; border: none; background: none; color: #9a8c98; font-size: 12px; cursor: pointer; margin-top: 5px; }
 
         @media (min-width: 768px) { .main-content { flex-direction: row; } .table-container { flex: 1.2; } .control-panel { flex: 1; } }
     </style>
+    <!-- 阻止行動裝置上的雙擊放大行為 -->
+    <script>
+        document.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+    </script>
 </head>
 <body>
 
@@ -131,12 +148,12 @@
                     <div id="swDisplay">00:00.00</div>
                 </div>
                 <div class="sw-actions">
-                    <button id="swStart" class="btn-start">開始 / 繼續</button>
+                    <button id="swStart" class="btn-start">開始</button>
                     <button id="swPause" class="btn-pause">暫停計時</button>
                     <button id="swLap" class="btn-lap">分段紀錄</button>
                     <button id="swStop" class="btn-stop">結束並記錄</button>
                 </div>
-                <button id="btnSWClear" class="btn-clear-footer">🗑 清除碼錶數據與重置開始鍵</button>
+                <button id="btnSWClear" class="btn-clear-footer">🗑 清除碼錶數據與重置</button>
             </div>
         </div>
     </div>
@@ -148,7 +165,6 @@
     const fields = ["m_min", "m_sec", "m_ms"];
     let fieldIdx = 0, inputCount = 0;
     
-    // 碼錶變數
     let timerState = "idling"; // idling, running, paused, stopped
     let startT = 0, elapsedT = 0, raf = null;
 
@@ -161,6 +177,7 @@
         $("manualPanel").classList.toggle("active", currentMode === "manual");
         $("swPanel").classList.toggle("active", currentMode === "sw");
         render();
+        updateSwBtnState();
     }
 
     /* --- 手動邏輯 --- */
@@ -228,7 +245,6 @@
         if (timerState === "running" || timerState === "paused") {
             if (timerState === "running") cancelAnimationFrame(raf);
             timerState = "stopped";
-            // 自動紀錄最後一筆時間
             swData.push({ id: Date.now(), total: elapsedT });
             render();
             updateSwBtnState();
@@ -269,7 +285,7 @@
             const lapTime = (i === 0) ? item.total : (item.total - list[i-1].total);
             let diffStr = "-", diffCls = "";
             if (i > 0) {
-                const prevLapTime = (i === 1) ? list[0].total : (list[i-1].total - list[i-2].total);
+                const prevLapTime = (i === 1) ? list.total : (list[i-1].total - list[i-2].total);
                 const diff = lapTime - prevLapTime;
                 diffStr = (diff > 0 ? "+" : "") + diff.toFixed(2);
                 diffCls = diff > 0 ? "style='color:var(--m-red); font-weight:600;'" : "style='color:var(--m-green); font-weight:600;'";
@@ -292,7 +308,6 @@
     }
 
     updateView();
-    updateSwBtnState();
 </script>
 </body>
 </html>
