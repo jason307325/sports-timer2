@@ -3,121 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-    <title>暖心分段記錄器</title>
+    <title>質感分段記錄器 2026</title>
     <style>
         :root {
-            --warm-blue: #5b9bd5;
-            --warm-orange: #f4a460; /* 暖橘色 */
-            --warm-red: #e67e22;
-            --soft-red: #ff6b6b;
-            --soft-green: #2ecc71;
-            --warm-bg: #fffaf0; /* 奶油色背景 */
-            --warm-card: #ffffff;
-            --warm-border: #f5deb3;
+            --m-bg: #f4f1de; /* 莫蘭迪淺米 */
+            --m-panel: #ffffff;
+            --m-text: #3d405b;
+            --m-primary: #e07a5f; /* 莫蘭迪珊瑚 */
+            --m-secondary: #81b29a; /* 莫蘭迪綠 */
+            --m-accent: #f2cc8f; /* 莫蘭迪黃 */
+            --m-red: #e07a5f;
+            --m-green: #81b29a;
         }
 
         html, body { 
             margin: 0; padding: 0; height: 100dvh; width: 100%;
-            overflow: hidden; background: var(--warm-bg); 
-            user-select: none; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; 
+            overflow: hidden; background: var(--m-bg); 
+            user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
         }
 
         .app-container {
             display: flex; flex-direction: column;
-            height: 100dvh; width: 100%; max-width: 1000px;
+            height: 100dvh; width: 100%; max-width: 800px;
             margin: 0 auto; box-sizing: border-box;
         }
 
-        /* 標題與提示 */
         header { 
-            padding: calc(12px + env(safe-area-inset-top)) 15px 5px;
-            flex-shrink: 0; display: flex; align-items: baseline; gap: 8px;
+            padding: calc(15px + env(safe-area-inset-top)) 20px 5px;
+            flex-shrink: 0; display: flex; align-items: baseline; gap: 10px;
         }
-        h1 { font-size: 1.2rem; margin: 0; color: #8b4513; }
-        .tip { font-size: 0.75rem; color: #a0522d; opacity: 0.8; }
+        h1 { font-size: 1.3rem; margin: 0; color: var(--m-text); letter-spacing: 1px; }
+        .tip { font-size: 0.75rem; color: #8d99ae; }
 
-        /* Tabs */
         .tabs { 
-            display: flex; background: #eedcb3; border-radius: 10px; padding: 2px; 
-            margin: 8px 15px; height: 36px; flex-shrink: 0;
+            display: flex; background: #e0e0e0; border-radius: 12px; padding: 3px; 
+            margin: 8px 20px; height: 38px; flex-shrink: 0;
         }
-        .tabs button { flex: 1; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; background: transparent; color: #8b4513; cursor: pointer; }
-        .tabs button.active { background: #fff; color: var(--warm-orange); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .tabs button { flex: 1; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; background: transparent; color: #6d6875; cursor: pointer; }
+        .tabs button.active { background: #fff; color: var(--m-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
         .main-content {
             flex: 1; display: flex; flex-direction: column;
-            overflow: hidden; padding: 0 15px 10px; gap: 8px;
+            overflow: hidden; padding: 0 20px 15px; gap: 10px;
         }
 
-        /* 紀錄列表區 - 高度優化以顯示 8 筆 */
         .table-container {
-            flex: 1; background: var(--warm-card); border-radius: 15px;
-            overflow-y: auto; border: 1px solid var(--warm-border);
-            box-shadow: 0 4px 10px rgba(139, 69, 19, 0.05);
+            flex: 1; background: var(--m-panel); border-radius: 20px;
+            overflow-y: auto; border: 1px solid #ddd;
         }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th { 
-            background: #fdf5e6; position: sticky; top: 0; z-index: 5;
-            padding: 8px 5px; font-size: 12px; color: #8b4513; border-bottom: 1px solid var(--warm-border);
+            background: #fdfcfb; position: sticky; top: 0; z-index: 5;
+            padding: 10px 5px; font-size: 13px; color: #9a8c98; border-bottom: 1px solid #eee;
         }
-        td { padding: 5px; text-align: center; font-size: 15px; border-bottom: 1px solid #faf0e6; height: 38px; color: #5d4037; }
+        td { padding: 8px 5px; text-align: center; font-size: 16px; border-bottom: 1px solid #f9f9f9; height: 42px; color: var(--m-text); }
 
-        /* 控制面板 */
         .control-panel {
-            background: #fff; border-radius: 18px;
-            padding: 12px 15px calc(10px + env(safe-area-inset-bottom));
-            flex-shrink: 0; box-shadow: 0 -4px 15px rgba(139, 69, 19, 0.08);
-            border: 1px solid var(--warm-border);
+            background: #fff; border-radius: 24px;
+            padding: 15px 20px calc(15px + env(safe-area-inset-bottom));
+            flex-shrink: 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.05);
         }
         .section { display: none; }
         .section.active { display: block; }
 
-        /* 手動輸入框 */
-        .time-box { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; }
+        .time-box { display: flex; justify-content: center; align-items: center; margin-bottom: 12px; }
         .time-input { 
-            width: 70px; height: 48px; line-height: 48px; font-size: 32px; 
-            font-weight: 700; text-align: center; border: 2.5px solid #f5deb3; 
-            border-radius: 12px; background: #fffaf0; color: #8b4513;
+            width: 75px; height: 50px; line-height: 50px; font-size: 32px; 
+            font-weight: 700; text-align: center; border: 2px solid #eee; 
+            border-radius: 12px; background: #fafafa; color: var(--m-text);
         }
-        .time-input.active { border-color: var(--warm-orange); background: #fff; box-shadow: 0 0 10px rgba(244, 164, 96, 0.2); }
-        .sep { margin: 0 6px; font-size: 22px; color: #deb887; }
+        .time-input.active { border-color: var(--m-primary); background: #fff; box-shadow: 0 0 12px rgba(224, 122, 95, 0.2); }
+        .sep { margin: 0 8px; font-size: 24px; color: #ddd; }
 
-        /* 按鈕 */
-        .actions { display: flex; gap: 10px; margin-bottom: 10px; }
+        .actions { display: flex; gap: 12px; margin-bottom: 12px; }
         .actions button { 
-            flex: 1; padding: 12px; border: none; border-radius: 12px; 
-            font-size: 15px; font-weight: 700; color: #fff; cursor: pointer;
+            flex: 1; padding: 14px; border: none; border-radius: 12px; 
+            font-size: 16px; font-weight: 700; color: #fff; cursor: pointer;
         }
-        .btn-orange { background: var(--warm-orange); }
-        .btn-gray { background: #bc8f8f; }
-        .btn-soft-orange { background: #ffdead; color: #8b4513 !important; }
+        .btn-primary { background: var(--m-primary); }
+        .btn-secondary { background: #8d99ae; }
+        .btn-accent { background: var(--m-secondary); }
 
-        /* 虛擬鍵盤縮小 */
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .keypad button { 
-            padding: 12px; border: none; border-radius: 10px; font-size: 20px; 
-            font-weight: 600; background: #fdf5e6; color: #8b4513;
+            padding: 14px; border: none; border-radius: 12px; font-size: 22px; 
+            font-weight: 500; background: #fdfcfb; color: var(--m-text); border: 1px solid #eee;
         }
-        .keypad button:active { background: #f5deb3; }
-        .keypad .k-del { color: var(--soft-red); }
-        .keypad .k-ok { background: var(--warm-orange); color: #fff; }
+        .keypad .k-del { background: #f2cc8f; border: none; color: #fff; }
+        .keypad .k-ok { background: var(--m-primary); border: none; color: #fff; }
 
-        /* 碼錶模式跑動明顯化 */
-        .sw-container { text-align: center; padding: 10px 0; }
+        /* 修正晃動：使用等寬字體與固定數位佈局 */
+        .sw-view { text-align: center; padding: 10px 0; }
         #swDisplay { 
-            font-size: 3.8rem; 
-            font-weight: 900; 
-            font-variant-numeric: tabular-nums; 
-            color: #d2691e; 
-            letter-spacing: -1px;
-            text-shadow: 1px 1px 0px #fff;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 3.8rem; font-weight: 800; font-variant-numeric: tabular-nums; 
+            color: var(--m-text); letter-spacing: -1px;
         }
 
-        .btn-del { width: 26px; height: 26px; border-radius: 50%; border: none; background: #ff6b6b20; color: var(--soft-red); font-weight: bold; cursor: pointer; }
+        .btn-del-row { 
+            width: 28px; height: 28px; border-radius: 50%; border: none; 
+            background: #fff1f0; color: var(--m-red); font-weight: bold; cursor: pointer;
+        }
 
         @media (min-width: 768px) {
             .main-content { flex-direction: row; align-items: flex-start; }
-            .table-container { flex: 1.5; height: 100%; }
+            .table-container { flex: 1.3; height: 100%; }
             .control-panel { flex: 1; }
         }
     </style>
@@ -127,24 +117,23 @@
 <div class="app-container">
     <header>
         <h1>分段記錄器</h1>
-        <div class="tip">點擊 "−" 刪除紀錄</div>
+        <div class="tip">點擊 "−" 即可刪除紀錄</div>
     </header>
 
     <div class="tabs">
-        <button id="tabManual" class="active">手動輸入</button>
-        <button id="tabSW">碼錶模式</button>
+        <button id="tabManual" class="active">手動輸入模式</button>
+        <button id="tabSW">碼錶計時模式</button>
     </div>
 
     <div class="main-content">
-        <!-- 紀錄列表區 -->
         <div class="table-container" id="scrollArea">
             <table>
                 <thead>
                     <tr>
                         <th style="width:12%">段</th>
-                        <th style="width:30%">總時間</th>
+                        <th style="width:32%">總時間</th>
                         <th style="width:25%">分段</th>
-                        <th style="width:20%">秒差</th>
+                        <th style="width:18%">秒差</th>
                         <th style="width:13%"></th>
                     </tr>
                 </thead>
@@ -152,9 +141,7 @@
             </table>
         </div>
 
-        <!-- 控制面板 -->
         <div class="control-panel">
-            <!-- 手動模式內容 -->
             <div id="manualPanel" class="section active">
                 <div class="time-box">
                     <div id="m_min" class="time-input active">00</div><span class="sep">:</span>
@@ -162,8 +149,8 @@
                     <div id="m_ms" class="time-input">00</div>
                 </div>
                 <div class="actions">
-                    <button id="btnManualSave" class="btn-orange">新增紀錄</button>
-                    <button id="btnManualClear" class="btn-gray">清空</button>
+                    <button id="btnManualSave" class="btn-primary">新增紀錄</button>
+                    <button id="btnManualClear" class="btn-secondary">清空</button>
                 </div>
                 <div class="keypad">
                     <button class="k-num">7</button><button class="k-num">8</button><button class="k-num">9</button>
@@ -175,17 +162,16 @@
                 </div>
             </div>
 
-            <!-- 碼錶模式內容 -->
             <div id="swPanel" class="section">
-                <div class="sw-container">
+                <div class="sw-view">
                     <div id="swDisplay">00:00.00</div>
                 </div>
                 <div class="actions">
-                    <button id="swStart" class="btn-orange">開始</button>
-                    <button id="swLap" class="btn-soft-orange">分段</button>
-                    <button id="swStop" class="btn-gray">停止</button>
+                    <button id="swStart" class="btn-primary">▶ 開始</button>
+                    <button id="swLap" class="btn-accent">⏱ 分段</button>
+                    <button id="swStop" class="btn-secondary">⏹ 停止</button>
                 </div>
-                <button id="btnSWClear" style="width:100%; padding:5px; border:none; background:none; color:#a0522d; font-size:12px; cursor:pointer;">🗑 清除碼錶紀錄</button>
+                <button id="btnSWClear" style="width:100%; padding:10px; border:none; background:none; color:#8d99ae; font-size:13px; cursor:pointer;">🗑 清除碼錶數據</button>
             </div>
         </div>
     </div>
@@ -195,10 +181,9 @@
     const $ = id => document.getElementById(id);
     let currentMode = "manual", manualData = [], swData = [];
     const fields = ["m_min", "m_sec", "m_ms"];
-    let fieldIdx = 0, freshField = true;
-    let run = false, startT = 0, elapsedT = 0, raf = null;
+    let fieldIdx = 0, inputCount = 0;
+    let timerRun = false, startT = 0, elapsedT = 0, raf = null;
 
-    /* 模式切換 */
     $("tabManual").onclick = () => { currentMode = "manual"; updateView(); };
     $("tabSW").onclick = () => { currentMode = "sw"; updateView(); };
 
@@ -210,25 +195,20 @@
         render();
     }
 
-    /* 手動邏輯 */
-    fields.forEach((id, i) => { $(id).onclick = () => { fieldIdx = i; freshField = true; updateFocus(); }; });
+    /* 手動輸入 */
+    fields.forEach((id, i) => { $(id).onclick = () => { fieldIdx = i; inputCount = 0; updateFocus(); }; });
     function updateFocus() { fields.forEach((id, i) => $(id).classList.toggle("active", i === fieldIdx)); }
 
     document.querySelectorAll(".k-num").forEach(b => {
         b.onclick = () => {
             let f = $(fields[fieldIdx]);
-            if (freshField) { f.innerText = "0" + b.innerText; freshField = false; } 
-            else { f.innerText = f.innerText.charAt(1) + b.innerText; }
-            if (!freshField && fieldIdx < 2) { fieldIdx++; freshField = true; }
+            if (inputCount === 0) { f.innerText = "0" + b.innerText; inputCount = 1; } 
+            else { f.innerText = f.innerText.charAt(1) + b.innerText; inputCount = 0; if (fieldIdx < 2) fieldIdx++; }
             updateFocus();
         };
     });
 
-    $("keyDel").onclick = () => { 
-        $(fields[fieldIdx]).innerText = "00"; 
-        if (fieldIdx > 0) { fieldIdx--; freshField = true; } 
-        updateFocus(); 
-    };
+    $("keyDel").onclick = () => { $(fields[fieldIdx]).innerText = "00"; inputCount = 0; if (fieldIdx > 0) fieldIdx--; updateFocus(); };
 
     const saveManual = () => {
         const t = (parseInt($("m_min").innerText)*60) + parseInt($("m_sec").innerText) + (parseInt($("m_ms").innerText)/100);
@@ -236,12 +216,12 @@
         manualData.push({ id: Date.now(), total: t });
         manualData.sort((a,b) => a.total - b.total);
         fields.forEach(id => $(id).innerText = "00");
-        fieldIdx = 0; freshField = true; updateFocus();
+        fieldIdx = 0; inputCount = 0; updateFocus();
         render();
     };
-    $("keySave").onclick = saveManual;
     $("btnManualSave").onclick = saveManual;
-    $("btnManualClear").onclick = () => { if(confirm("確定要清空手動紀錄嗎？")) { manualData=[]; render(); }};
+    $("keySave").onclick = saveManual;
+    $("btnManualClear").onclick = () => { if(confirm("確定清空？")) { manualData=[]; render(); }};
 
     /* 碼錶邏輯 */
     function tick() {
@@ -250,8 +230,8 @@
         $("swDisplay").innerText = `${String(m).padStart(2,"0")}:${ss}`;
         raf = requestAnimationFrame(tick);
     }
-    $("swStart").onclick = () => { if(!run){ run=true; startT=performance.now()-(elapsedT*1000); tick(); }};
-    $("swStop").onclick = () => { run=false; cancelAnimationFrame(raf); };
+    $("swStart").onclick = () => { if(!timerRun){ timerRun=true; startT=performance.now()-(elapsedT*1000); tick(); }};
+    $("swStop").onclick = () => { timerRun=false; cancelAnimationFrame(raf); };
     $("swLap").onclick = () => {
         if(elapsedT > 0) {
             swData.push({ id: Date.now(), total: elapsedT });
@@ -259,45 +239,53 @@
             setTimeout(() => { $("scrollArea").scrollTop = $("scrollArea").scrollHeight; }, 30);
         }
     };
-    $("btnSWClear").onclick = () => { if(confirm("清除碼錶紀錄？")) { swData=[]; elapsedT=0; $("swDisplay").innerText="00:00.00"; render(); }};
+    $("btnSWClear").onclick = () => { if(confirm("清除？")) { swData=[]; elapsedT=0; $("swDisplay").innerText="00:00.00"; render(); }};
 
-    /* 渲染列表 */
+    /* 渲染列表 - 修正 NaN 與秒差邏輯 */
     function render() {
         const list = currentMode === "manual" ? manualData : swData;
         const body = $("tbody");
         body.innerHTML = "";
         if (list.length === 0) {
-            body.innerHTML = `<tr><td colspan="5" style="padding:40px; color:#deb887; font-size:13px;">尚無紀錄資料</td></tr>`;
+            body.innerHTML = `<tr><td colspan="5" style="padding:40px; color:#999; font-size:13px;">尚未有紀錄</td></tr>`;
             return;
         }
+
         list.forEach((item, i) => {
-            const lap = i === 0 ? item.total : item.total - list[i-1].total;
-            let dStr = "-", dCls = "";
-            if(i > 0) {
-                const prevLap = (i === 1) ? list.total : (list[i-1].total - list[i-2].total);
-                const diff = lap - prevLap;
-                dStr = (diff > 0 ? "+" : "") + diff.toFixed(2);
-                dCls = diff > 0 ? "style='color:var(--soft-red); font-weight:600; font-size:12px;'" : "style='color:var(--soft-green); font-weight:600; font-size:12px;'";
+            // 計算分段：當前總時間 - 前一筆總時間
+            const lapTime = (i === 0) ? item.total : (item.total - list[i-1].total);
+            
+            // 計算秒差：當前分段 - 前一筆分段
+            let diffStr = "-", diffCls = "";
+            if (i > 0) {
+                const prevLapTime = (i === 1) ? list[0].total : (list[i-1].total - list[i-2].total);
+                const diff = lapTime - prevLapTime;
+                if (!isNaN(diff)) {
+                    diffStr = (diff > 0 ? "+" : "") + diff.toFixed(2);
+                    diffCls = diff > 0 ? "style='color:var(--m-red); font-weight:600;'" : "style='color:var(--m-green); font-weight:600;'";
+                }
             }
+
             const tr = document.createElement("tr");
             tr.innerHTML = `
                 <td>${i+1}</td>
-                <td style="color:#d2691e; font-weight:700;">${fmt(item.total)}</td>
-                <td>${fmt(lap)}</td>
-                <td ${dCls}>${dStr}</td>
-                <td><button class="btn-del" onclick="remove(${item.id})">−</button></td>
+                <td style="color:var(--m-primary); font-weight:700;">${fmt(item.total)}</td>
+                <td>${fmt(lapTime)}</td>
+                <td ${diffCls}>${diffStr}</td>
+                <td><button class="btn-del-row" onclick="removeRow(${item.id})">−</button></td>
             `;
             body.appendChild(tr);
         });
     }
 
-    window.remove = (id) => {
+    window.removeRow = (id) => {
         if(currentMode === "manual") manualData = manualData.filter(x => x.id !== id);
         else swData = swData.filter(x => x.id !== id);
         render();
     };
 
     function fmt(s) {
+        if (isNaN(s)) return "00:00.00";
         const m = Math.floor(s/60), ss = (s%60).toFixed(2).padStart(5,"0");
         return `${String(m).padStart(2,"0")}:${ss}`;
     }
