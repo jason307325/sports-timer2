@@ -6,40 +6,42 @@
     <title>專業分段記錄器 2026 穩定版</title>
     <style>
         :root {
-            --m-bg: #f5f2ed;
-            --m-panel: #ffffff;
-            --m-text: #3d405b;
-            --m-primary: #e07a5f;
-            --m-secondary: #81b29a;
-            --m-accent: #5b9bd5;
-            --m-orange: #f39c12;
-            --m-red: #e74c3c;
-            --m-green: #2ecc71;
+            --m-bg: #0d1117;        /* 主背景色 */
+            --m-panel: #161b22;     /* 面板底色 */
+            --m-text: #ffffff;      /* 文字顏色 */
+            --m-primary: #00a2ff;   /* 主要按鈕 / 主題色 */
+            --m-secondary: #4cd964; /* 次要強調色 */
+            --m-accent: #4ae3ff;    /* 分段 / 特殊按鈕色 */
+            --m-orange: #ff9500;
+            --m-red: #ff3b30;
+            --m-green: #4cd964;
         }
 
         html, body { 
-            margin: 0; padding: 0; height: 100dvh; width: 100%; overflow: hidden; background: var(--m-bg); 
+            margin: 0; padding: 0; height: 100dvh; width: 100%; overflow: hidden; 
+            background: var(--m-bg); color: var(--m-text);
             user-select: none; font-family: -apple-system, system-ui, sans-serif; 
-            touch-action: manipulation; /* 瀏覽器層級防止雙擊縮放 */
+            touch-action: manipulation; 
         }
 
         .app-container { display: flex; flex-direction: column; height: 100dvh; width: 100%; max-width: 800px; margin: 0 auto; }
 
         header { padding: calc(12px + env(safe-area-inset-top)) 20px 5px; flex-shrink: 0; display: flex; align-items: baseline; gap: 10px; }
         h1 { font-size: 1.1rem; margin: 0; color: var(--m-text); }
-        .tip { font-size: 0.7rem; color: #9a8c98; }
+        .tip { font-size: 0.7rem; color: #888; }
 
-        .tabs { display: flex; background: #e0dbd5; border-radius: 10px; padding: 2px; margin: 5px 15px; height: 34px; flex-shrink: 0; }
-        .tabs button { flex: 1; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; background: transparent; color: #6d6875; cursor: pointer; }
-        .tabs button.active { background: #fff; color: var(--m-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+        .tabs { display: flex; background: #05070a; border-radius: 10px; padding: 2px; margin: 5px 15px; height: 34px; flex-shrink: 0; }
+        .tabs button { flex: 1; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; background: transparent; color: #666; cursor: pointer; }
+        .tabs button.active { background: rgba(0,162,255,0.05); color: var(--m-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0 15px 10px; gap: 8px; }
-        .table-container { flex: 1; background: var(--m-panel); border-radius: 18px; overflow-y: auto; border: 1px solid #ddd; }
+        .table-container { flex: 1; background: var(--m-panel); border-radius: 18px; overflow-y: auto; border: 1px solid #30363d; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { background: #faf9f7; position: sticky; top: 0; z-index: 5; padding: 8px 5px; font-size: 12px; color: #9a8c98; border-bottom: 1px solid #eee; }
-        td { padding: 5px; text-align: center; font-size: 15px; border-bottom: 1px solid #fcfcfc; height: 38px; color: var(--m-text); }
+        th { background: #161b22; position: sticky; top: 0; z-index: 5; padding: 8px 5px; font-size: 12px; color: #888; border-bottom: 1px solid #30363d; }
+        td { padding: 5px; text-align: center; font-size: 15px; border-bottom: 1px solid #222; color: var(--m-text); }
 
-        .control-panel { background: #fff; border-radius: 20px; padding: 10px 15px calc(10px + env(safe-area-inset-bottom)); flex-shrink: 0; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
+        .control-panel { background: #05070a; border-radius: 20px; padding: 10px 15px calc(10px + env(safe-area-inset-bottom)); flex-shrink: 0; box-shadow: 0 -4px 15px rgba(0,0,0,0.3); }
+
         .section { display: none; }
         .section.active { display: block; }
 
@@ -50,20 +52,19 @@
             font-size: clamp(3.5rem, 13vw, 4.8rem); 
             font-weight: 800; 
             font-variant-numeric: tabular-nums;
-            color: #000000;
+            color: var(--m-text);
             letter-spacing: -2px;
         }
 
-        /* 縮小輸入區 */
         .time-box { display: flex; justify-content: center; align-items: center; margin-bottom: 8px; }
-        .time-input { width: 60px; height: 40px; line-height: 40px; font-size: 26px; font-weight: 700; text-align: center; border: 1.5px solid #eee; border-radius: 8px; background: #fafafa; }
-        .time-input.active { border-color: var(--m-primary); background: #fff; }
-        .sep { margin: 0 4px; font-size: 18px; color: #ddd; }
+        .time-input { width: 60px; height: 40px; line-height: 40px; font-size: 26px; font-weight: 700; text-align: center; border: 1.5px solid #222; border-radius: 8px; background: #161b22; color: #fff; }
+        .time-input.active { border-color: var(--m-primary); background: #0a0d12; }
+
+        .sep { margin: 0 4px; font-size: 18px; color: #444; }
 
         .actions { display: flex; gap: 8px; margin-bottom: 8px; }
         .actions button { flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; color: #fff; }
 
-        /* 碼錶四鍵 */
         .sw-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 5px; }
         .sw-actions button { padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; }
         .btn-start { background: var(--m-green); }
@@ -72,14 +73,13 @@
         .btn-stop { background: var(--m-red); }
         .btn-lock { opacity: 0.3; pointer-events: none; }
 
-        /* 縮小鍵盤 */
         .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-        .keypad button { padding: 10px; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; background: #fdfcfb; border: 1px solid #eee; }
-        .keypad .k-del { background: #f2cc8f; color: #fff; border: none; }
+        .keypad button { padding: 10px; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; background: #161b22; color: #fff; border: 1px solid #30363d; }
+        .keypad .k-del { background: #ff3b30; color: #fff; border: none; }
         .keypad .k-ok { background: var(--m-primary); color: #fff; border: none; }
 
-        .btn-del-row { width: 24px; height: 24px; border-radius: 50%; border: none; background: #fff0ed; color: var(--m-red); font-weight: bold; cursor: pointer; }
-        .btn-clear-footer { width: 100%; padding: 5px; border: none; background: none; color: #9a8c98; font-size: 11px; cursor: pointer; }
+        .btn-del-row { width: 24px; height: 24px; border-radius: 50%; border: none; background: #30363d; color: var(--m-red); font-weight: bold; cursor: pointer; }
+        .btn-clear-footer { width: 100%; padding: 5px; border: none; background: none; color: #888; font-size: 11px; cursor: pointer; }
 
         @media (min-width: 768px) { .main-content { flex-direction: row; } .table-container { flex: 1.3; } .control-panel { flex: 1; } }
     </style>
@@ -122,7 +122,7 @@
                 </div>
                 <div class="actions">
                     <button id="btnManualSave" style="background:var(--m-primary)">新增紀錄</button>
-                    <button id="btnManualClear" style="background:#9a8c98">清空</button>
+                    <button id="btnManualClear" style="background:#4cd964">清空</button>
                 </div>
                 <div class="keypad">
                     <button class="k-num">7</button><button class="k-num">8</button><button class="k-num">9</button>
@@ -273,11 +273,9 @@
         }
 
         list.forEach((item, i) => {
-            // 1. 分段時間 = 當前總時間 - 上一筆總時間 (確保數值有效)
             const prevTotal = (i > 0) ? list[i-1].total : 0;
             const lapTime = item.total - prevTotal;
             
-            // 2. 秒差 = 當前分段 - 上一筆分段
             let diffStr = "-", diffCls = "";
             if (i > 0) {
                 const prevLapTime = (i === 1) ? list[0].total : (list[i-1].total - list[i-2].total);
@@ -308,17 +306,4 @@
     };
 
     function fmt(s) {
-        if (!Number.isFinite(s)) return "00:00.00";
-        const m = Math.floor(s/60), ss = (s%60).toFixed(2).padStart(5,"0");
-        return `${String(m).padStart(2,"0")}:${ss}`;
-    }
-
-    // 防止雙擊放大的腳本
-    document.addEventListener('touchstart', (e) => {
-        if (e.touches.length > 1) return; // 允許多指縮放
-    }, {passive: true});
-
-    updateView();
-</script>
-</body>
-</html>
+        if (!Number.isFinite(s
