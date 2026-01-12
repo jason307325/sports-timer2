@@ -57,8 +57,11 @@ td { color:#eee; }
 .btn-stop { background: var(--neon-red); }
 .btn-lock { opacity:0.3; pointer-events:none; }
 
-.btn-del-row { width:24px; height:24px; border-radius:50%; border:none; background:#222; color: var(--neon-red); font-weight:bold; }
+.btn-del-row { width:24px; height:24px; border-radius:50%; border:none; background:#222; color: var(--neon-red); font-weight:bold; cursor:pointer; }
 .btn-clear-footer { width:100%; padding:5px; border:none; background:none; color:#888; font-size:11px; cursor:pointer; }
+
+.diff-up { color: var(--neon-red); font-weight:600; }
+.diff-down { color: var(--neon-green); font-weight:600; }
 
 @media (min-width:768px){ .content-wrapper{flex-direction:row;} .table-container{flex:1.3;} .control-panel{flex:1;} }
 </style>
@@ -71,6 +74,7 @@ td { color:#eee; }
     </header>
 
     <main class="content-wrapper">
+        <!-- 手動輸入頁 -->
         <div id="page-manual" class="page active">
             <div class="table-container">
                 <table>
@@ -101,6 +105,7 @@ td { color:#eee; }
             </div>
         </div>
 
+        <!-- 碼錶頁 -->
         <div id="page-sw" class="page">
             <div class="table-container">
                 <table>
@@ -144,7 +149,7 @@ function switchTab(tab){
     document.getElementById("tabSW").classList.toggle("active", tab==="sw");
     document.getElementById("page-manual").classList.toggle("active", tab==="manual");
     document.getElementById("page-sw").classList.toggle("active", tab==="sw");
-    render();
+    render(); renderSW();
 }
 
 /* 手動輸入鍵盤 */
@@ -159,14 +164,65 @@ document.querySelectorAll(".k-num").forEach(b=>{
         updateFocus();
     };
 });
-document.getElementById("keyDel").onclick=()=>{document.getElementById(fields[fieldIdx]).innerText="00";inputCount=0;if(fieldIdx>0) fieldIdx--;updateFocus();}
-const saveManual=()=>{
+document.getElementById("keyDel").onclick=()=>{
+    document.getElementById(fields[fieldIdx]).innerText="00";
+    inputCount=0;
+    if(fieldIdx>0) fieldIdx--;
+    updateFocus();
+}
+document.getElementById("keySave").onclick=()=>{
     const t=parseInt(document.getElementById("m_min").innerText)*60+parseInt(document.getElementById("m_sec").innerText)+parseInt(document.getElementById("m_ms").innerText)/100;
     if(t<=0) return;
-    manualData.push({id:Date.now(),total:t});manualData.sort((a,b)=>a.total-b.total);
-    fields.forEach(id=>document.getElementById(id).innerText="00");fieldIdx=0;inputCount=0;updateFocus();render();
+    manualData.push({id:Date.now(),total:t});
+    manualData.sort((a,b)=>a.total-b.total);
+    fields.forEach(id=>document.getElementById(id).innerText="00");fieldIdx=0;inputCount=0;updateFocus();
+    render();
 };
-document.getElementById("keySave").onclick=saveManual;
+
+/* 渲染分段表 - 手動輸入 */
+function render(){
+    const body = document.getElementById("tbody");
+    body.innerHTML = "";
+    if(manualData.length === 0){
+        body.innerHTML = `<tr><td colspan="5" style="padding:40px;color:#999;font-size:13px;">尚未有紀錄</td></tr>`;
+        return;
+    }
+
+    manualData.forEach((item, i) => {
+        const prevTotal = i > 0 ? manualData[i-1].total : 0;
+        const lap = item.total - prevTotal;
+
+        let diffStr = "-", diffCls = "";
+        if(i > 0){
+            const prevLap = (i === 1) ? manualData[0].total : manualData[i-1].total - manualData[i-2].total;
+            const diff = lap - prevLap;
+            if(Number.isFinite(diff)){
+                diffStr = (diff > 0 ? "+" : "") + diff.toFixed(2);
+                diffCls = diff > 0 ? "diff-up" : "diff-down";
+            }
+        }
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${i+1}</td>
+            <td style="color:var(--neon-blue); font-weight:700;">${fmt(item.total)}</td>
+            <td>${fmt(lap)}</td>
+            <td class="${diffCls}">${diffStr}</td>
+            <td></td>
+        `;
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "btn-del-row";
+        delBtn.innerText = "−";
+        delBtn.onclick = () => { 
+            manualData = manualData.filter(x => x.id !== item.id); 
+            render(); 
+        };
+        tr.querySelector("td:last-child").appendChild(delBtn);
+        body.appendChild(tr);
+    });
+}
 
 /* 碼錶功能 */
 function tick(){elapsedT=(performance.now()-startT)/1000;let m=Math.floor(elapsedT/60),ss=(elapsedT%60).toFixed(2).padStart(5,"0");document.getElementById("swDisplay").innerText=`${String(m).padStart(2,"0")}:${ss}`;raf=requestAnimationFrame(tick);}
@@ -187,21 +243,7 @@ function updateSwBtnState(){
 }
 function scrollToBottomSW(){setTimeout(()=>{document.getElementById("page-sw").querySelector(".table-container").scrollTop=document.getElementById("page-sw").querySelector(".table-container").scrollHeight;},50);}
 
-/* 渲染分段表 */
-function render(){
-    const body=document.getElementById("tbody");
-    body.innerHTML="";
-    if(manualData.length===0){body.innerHTML=`<tr><td colspan="5" style="padding:40px;color:#999;font-size:13px;">尚未有紀錄</td></tr>`;return;}
-    manualData.forEach((item,i)=>{
-        const prevTotal=i>0?manualData[i-1].total:0;
-        const lap=item.total-prevTotal;
-        let diffStr="-",diffCls="";
-        if(i>0){const prevLap=(i===1)?manualData[0].total:manualData[i-1].total-manualData[i-2].total;const diff=lap-prevLap;if(Number.isFinite(diff)){diffStr=(diff>0?"+":"")+diff.toFixed(2);diffCls=`style='color:${diff>0? "#ff3b30":"#4cd964"}; font-weight:600;'`;}}
-        const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${i+1}</td><td style="color:var(--neon-blue); font-weight:700;">${fmt(item.total)}</td><td>${fmt(lap)}</td><td ${diffCls}>${diffStr}</td><td><button class="btn-del-row" onclick="manualData=manualData.filter(x=>x.id!==${item.id});render();">−</button></td>`;
-        body.appendChild(tr);
-    });
-}
+/* 渲染碼錶表 */
 function renderSW(){
     const body=document.getElementById("tbodySW");
     body.innerHTML="";
@@ -210,12 +252,19 @@ function renderSW(){
         const prevTotal=i>0?swData[i-1].total:0;
         const lap=item.total-prevTotal;
         let diffStr="-",diffCls="";
-        if(i>0){const prevLap=(i===1)?swData[0].total:swData[i-1].total-swData[i-2].total;const diff=lap-prevLap;if(Number.isFinite(diff)){diffStr=(diff>0?"+":"")+diff.toFixed(2);diffCls=`style='color:${diff>0? "#ff3b30":"#4cd964"}; font-weight:600;'`;}}
+        if(i>0){const prevLap=(i===1)?swData[0].total:swData[i-1].total-swData[i-2].total;const diff=lap-prevLap;if(Number.isFinite(diff)){diffStr=(diff>0?"+":"")+diff.toFixed(2);diffCls=diff>0?"diff-up":"diff-down";}}
         const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${i+1}</td><td style="color:var(--neon-blue); font-weight:700;">${fmt(item.total)}</td><td>${fmt(lap)}</td><td ${diffCls}>${diffStr}</td><td><button class="btn-del-row" onclick="swData=swData.filter(x=>x.id!==${item.id});renderSW();">−</button></td>`;
+        tr.innerHTML=`<td>${i+1}</td><td style="color:var(--neon-blue); font-weight:700;">${fmt(item.total)}</td><td>${fmt(lap)}</td><td class="${diffCls}">${diffStr}</td><td></td>`;
+        const delBtn = document.createElement("button");
+        delBtn.className = "btn-del-row";
+        delBtn.innerText = "−";
+        delBtn.onclick = ()=>{swData=swData.filter(x=>x.id!==item.id); renderSW();};
+        tr.querySelector("td:last-child").appendChild(delBtn);
         body.appendChild(tr);
     });
 }
+
+/* 格式化時間 */
 function fmt(s){if(!Number.isFinite(s)) return "00:00.00";const m=Math.floor(s/60),ss=(s%60).toFixed(2).padStart(5,"0");return `${String(m).padStart(2,"0")}:${ss}`;}
 </script>
 </body>
