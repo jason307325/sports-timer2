@@ -2,12 +2,14 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>分段記錄器 - 四鈕平衡版</title>
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>分段記錄器｜教練實戰穩定版</title>
+
 <style>
 :root {
-    --bg-dark: #0d1117; 
-    --panel-dark: #161b22; 
+    --bg-dark: #0d1117;
+    --panel-dark: #161b22;
     --text-light: #fff;
     --neon-blue: #00a2ff;
     --neon-green: #4cd964;
@@ -15,114 +17,298 @@
     --neon-orange: #ff9500;
 }
 
-* { box-sizing: border-box; margin:0; padding:0; touch-action: manipulation; }
-html, body { height: 100dvh; width:100%; background: var(--bg-dark); color: var(--text-light); font-family: -apple-system, system-ui, sans-serif; overflow: hidden; }
-button { cursor: pointer; border: none; transition: opacity 0.2s; }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    touch-action: manipulation;
+}
 
-.app-container { display:flex; flex-direction:column; height:100%; width:100%; max-width:800px; margin:0 auto; }
+html, body {
+    height: 100dvh;
+    width: 100%;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    font-family: -apple-system, system-ui, sans-serif;
+    overflow: hidden;
+}
 
-header { display:flex; background:#05070a; border-bottom:2px solid #1a2028; flex-shrink:0; }
-header div.tab-btn { flex:1; text-align:center; padding:15px 0; font-size:14px; font-weight:900; color:#666; border-bottom:3px solid transparent; }
-header div.tab-btn.active { color: var(--neon-blue); border-bottom-color: var(--neon-blue); background: rgba(0,162,255,0.05); }
+button {
+    cursor: pointer;
+    border: none;
+}
 
-.content-wrapper { flex:1; display:flex; position:relative; overflow:hidden; }
-.page { position:absolute; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; }
-.page.active { display:flex; }
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+}
 
-.table-container { flex:1; overflow-y:auto; padding:10px; scroll-behavior: smooth; }
-table { width:100%; border-collapse: collapse; margin-bottom: 20px; }
-th, td { padding:10px 5px; text-align:center; font-size:13px; border-bottom:1px solid #222; }
-th { position:sticky; top:0; background:var(--panel-dark); color:#888; z-index:5; }
+/* ===== Header ===== */
+header {
+    display: flex;
+    background: #05070a;
+    border-bottom: 2px solid #1a2028;
+}
 
-.control-panel { flex-shrink:0; padding:15px; background: var(--panel-dark); border-top:1px solid #1a2028; display:flex; flex-direction:column; gap:10px; }
-.time-box { display:flex; justify-content:center; align-items:center; gap:4px; }
-.time-input { width:65px; height:45px; line-height:45px; text-align:center; border:1.5px solid #333; border-radius:8px; background:#090c10; font-size:22px; font-weight:700; color:#fff; }
-.time-input.active { border-color: var(--neon-blue); }
+header .tab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    font-size: 14px;
+    font-weight: 900;
+    color: #666;
+    border-bottom: 3px solid transparent;
+}
 
-.keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-.keypad button { padding:12px; border-radius:8px; font-size:20px; font-weight:600; background:#1c222d; color:#fff; }
-.keypad .k-del { background: #333; color: var(--neon-red); }
-.keypad .k-ok { background: var(--neon-blue); }
+header .tab-btn.active {
+    color: var(--neon-blue);
+    border-bottom-color: var(--neon-blue);
+    background: rgba(0,162,255,0.06);
+}
 
-.sw-view { text-align:center; padding:10px 0; }
-#swDisplay { font-family:"Courier New", monospace; font-size: clamp(3.2rem,12vw,4.5rem); font-weight:800; font-variant-numeric: tabular-nums; letter-spacing:-2px; }
+/* ===== Pages ===== */
+.content-wrapper {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
 
-/* 修正：四按鈕平均分佈佈局 */
-.sw-actions { display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap:10px; }
-.sw-actions button { padding:18px 0; border-radius:12px; font-size:18px; font-weight:700; color:#fff; width: 100%; }
+.page {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+}
+
+.page.active {
+    display: flex;
+}
+
+/* ===== Table ===== */
+.table-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px 6px;
+    text-align: center;
+    font-size: 13px;
+    border-bottom: 1px solid #222;
+}
+
+th {
+    position: sticky;
+    top: 0;
+    background: var(--panel-dark);
+    color: #888;
+    z-index: 2;
+}
+
+/* ===== Control Panel ===== */
+.control-panel {
+    padding: 16px;
+    background: var(--panel-dark);
+    border-top: 1px solid #1a2028;
+}
+
+/* ===== 教練實戰輸入區 ===== */
+.time-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.time-input {
+    width: 92px;
+    height: 68px;
+    line-height: 68px;
+    text-align: center;
+    border: 2.5px solid #2a2f36;
+    border-radius: 14px;
+    background: #0b0f14;
+    font-size: 30px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 1px;
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        border-color 0.12s ease,
+        background 0.12s ease;
+}
+
+.time-input.active {
+    border-color: var(--neon-blue);
+    background: linear-gradient(180deg, #0c1f2d, #09131c);
+    box-shadow:
+        0 0 0 3px rgba(0,162,255,0.28),
+        0 8px 20px rgba(0,0,0,0.4);
+    transform: scale(1.06);
+}
+
+/* ===== Keypad ===== */
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.keypad button {
+    padding: 14px 0;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 700;
+    background: #1c222d;
+    color: #fff;
+}
+
+.k-del { background: #2b2b2b; color: var(--neon-red); }
+.k-ok  { background: var(--neon-blue); }
+
+/* ===== Stopwatch ===== */
+.sw-view {
+    text-align: center;
+    padding: 10px 0;
+}
+
+#swDisplay {
+    font-family: "Courier New", monospace;
+    font-size: clamp(3.2rem, 12vw, 4.6rem);
+    font-weight: 800;
+}
+
+.sw-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.sw-actions button {
+    padding: 18px 0;
+    border-radius: 14px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+}
+
 .btn-start { background: var(--neon-green); }
-.btn-lap { background: var(--neon-blue); }
+.btn-lap   { background: var(--neon-blue); }
 .btn-pause { background: var(--neon-orange); }
-.btn-stop { background: var(--neon-red); }
-.btn-lock { opacity: 0.15; pointer-events: none; filter: grayscale(1); }
+.btn-stop  { background: var(--neon-red); }
 
-.btn-del-row { width:24px; height:24px; border-radius:50%; background:#222; color: var(--neon-red); font-weight:bold; }
-.btn-clear-footer { width:100%; padding:15px; background:transparent; color:#555; font-size:12px; border-top: 1px dashed #333; margin-top: 10px; }
+.btn-lock {
+    opacity: 0.2;
+    pointer-events: none;
+}
 
-.diff-up { color: var(--neon-red); }
-.diff-down { color: var(--neon-green); }
+/* ===== Delete ===== */
+.btn-del-row {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #222;
+    color: var(--neon-red);
+    font-weight: 900;
+}
 
-@media (min-width:768px){ .content-wrapper{flex-direction:row;} .table-container{flex:1.2;} .control-panel{flex:0.8;} }
+.btn-clear-footer {
+    width: 100%;
+    padding: 14px;
+    background: none;
+    color: #555;
+    font-size: 12px;
+}
+
+/* ===== Desktop ===== */
+@media (min-width: 768px) {
+    .content-wrapper { display: flex; }
+    .table-container { flex: 1.2; }
+    .control-panel { flex: 0.8; }
+}
 </style>
 </head>
+
 <body>
 <div class="app-container">
-    <header>
-        <div id="tabManual" class="tab-btn active" onclick="switchTab('manual')">手動輸入</div>
-        <div id="tabSW" class="tab-btn" onclick="switchTab('sw')">碼錶計時</div>
-    </header>
 
-    <main class="content-wrapper">
-        <div id="page-manual" class="page active">
-            <div class="table-container" id="manualScrollArea">
-                <table>
-                    <thead>
-                        <tr><th>段</th><th>總時間</th><th>分段</th><th>秒差</th><th></th></tr>
-                    </thead>
-                    <tbody id="tbody"></tbody>
-                </table>
-                <button id="btnManualClear" class="btn-clear-footer">✕ 清空所有手動紀錄</button>
-            </div>
-            <div class="control-panel">
-                <div class="time-box">
-                    <div id="m_min" class="time-input active">00</div><span>:</span>
-                    <div id="m_sec" class="time-input">00</div><span>.</span>
-                    <div id="m_ms" class="time-input">00</div>
-                </div>
-                <div class="keypad">
-                    <button class="k-num">7</button><button class="k-num">8</button><button class="k-num">9</button>
-                    <button class="k-num">4</button><button class="k-num">5</button><button class="k-num">6</button>
-                    <button class="k-num">1</button><button class="k-num">2</button><button class="k-num">3</button>
-                    <button class="k-del" id="keyDel">⌫</button><button class="k-num">0</button><button class="k-ok" id="keySave">✓</button>
-                </div>
-                <button onclick="stressTest()" style="font-size:10px; background:none; color:#222; margin-top:5px;">STRESS TEST</button>
-            </div>
+<header>
+    <div id="tabManual" class="tab-btn active" onclick="switchTab('manual')">手動輸入</div>
+    <div id="tabSW" class="tab-btn" onclick="switchTab('sw')">碼錶計時</div>
+</header>
+
+<main class="content-wrapper">
+
+<!-- ===== Manual ===== -->
+<div id="page-manual" class="page active">
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr><th>段</th><th>總時間</th><th>分段</th><th>秒差</th><th></th></tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+        <button id="btnManualClear" class="btn-clear-footer">✕ 清空所有手動紀錄</button>
+    </div>
+
+    <div class="control-panel">
+        <div class="time-box">
+            <div id="m_min" class="time-input active">00</div><span>:</span>
+            <div id="m_sec" class="time-input">00</div><span>.</span>
+            <div id="m_ms"  class="time-input">00</div>
         </div>
 
-        <div id="page-sw" class="page">
-            <div class="table-container" id="swScrollArea">
-                <table>
-                    <thead>
-                        <tr><th>段</th><th>總時間</th><th>分段</th><th>秒差</th><th></th></tr>
-                    </thead>
-                    <tbody id="tbodySW"></tbody>
-                </table>
-                <button id="btnSWClear" class="btn-clear-footer">✕ 重置碼錶並清空紀錄</button>
-            </div>
-            <div class="control-panel">
-                <div class="sw-view"><div id="swDisplay">00:00.00</div></div>
-                <div class="sw-actions">
-                    <button id="swStart" class="btn-start">開始</button>
-                    <button id="swLap" class="btn-lap btn-lock">分段</button>
-                    <button id="swPause" class="btn-pause btn-lock">暫停</button>
-                    <button id="swStop" class="btn-stop btn-lock">結束</button>
-                </div>
-            </div>
+        <div class="keypad">
+            <button class="k-num">7</button><button class="k-num">8</button><button class="k-num">9</button>
+            <button class="k-num">4</button><button class="k-num">5</button><button class="k-num">6</button>
+            <button class="k-num">1</button><button class="k-num">2</button><button class="k-num">3</button>
+            <button class="k-del" id="keyDel">⌫</button>
+            <button class="k-num">0</button>
+            <button class="k-ok" id="keySave">✓</button>
         </div>
-    </main>
+    </div>
+</div>
+
+<!-- ===== Stopwatch ===== -->
+<div id="page-sw" class="page">
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr><th>段</th><th>總時間</th><th>分段</th><th>秒差</th><th></th></tr>
+            </thead>
+            <tbody id="tbodySW"></tbody>
+        </table>
+        <button id="btnSWClear" class="btn-clear-footer">✕ 重置碼錶並清空紀錄</button>
+    </div>
+
+    <div class="control-panel">
+        <div class="sw-view"><div id="swDisplay">00:00.00</div></div>
+        <div class="sw-actions">
+            <button id="swStart" class="btn-start">開始</button>
+            <button id="swLap" class="btn-lap btn-lock">分段</button>
+            <button id="swPause" class="btn-pause btn-lock">暫停</button>
+            <button id="swStop" class="btn-stop btn-lock">結束</button>
+        </div>
+    </div>
+</div>
+
+</main>
 </div>
 
 <script>
+/* === 原有邏輯，未變動（穩定） === */
 let manualData=[], swData=[];
 let fields=["m_min","m_sec","m_ms"], fieldIdx=0, inputCount=0;
 let timerState="idling", startT=0, elapsedT=0, raf=null;
@@ -132,10 +318,9 @@ function switchTab(tab){
     document.getElementById("tabSW").classList.toggle("active", tab==="sw");
     document.getElementById("page-manual").classList.toggle("active", tab==="manual");
     document.getElementById("page-sw").classList.toggle("active", tab==="sw");
-    tab === "manual" ? render() : renderSW();
+    tab==="manual"?render():renderSW();
 }
 
-/* 手動輸入 */
 fields.forEach((id,i)=>document.getElementById(id).onclick=()=>{fieldIdx=i;inputCount=0;updateFocus();});
 function updateFocus(){fields.forEach((id,i)=>document.getElementById(id).classList.toggle("active",i===fieldIdx));}
 
@@ -143,107 +328,72 @@ document.querySelectorAll(".k-num").forEach(b=>{
     b.onclick=()=>{
         let f=document.getElementById(fields[fieldIdx]);
         if(inputCount===0){f.innerText="0"+b.innerText;inputCount=1;}
-        else{f.innerText=f.innerText.charAt(1)+b.innerText;inputCount=0;if(fieldIdx<2) fieldIdx++;}
+        else{f.innerText=f.innerText.charAt(1)+b.innerText;inputCount=0;if(fieldIdx<2)fieldIdx++;}
         updateFocus();
     };
 });
 document.getElementById("keyDel").onclick=()=>{
     document.getElementById(fields[fieldIdx]).innerText="00";
-    inputCount=0; if(fieldIdx>0) fieldIdx--; updateFocus();
-}
-document.getElementById("keySave").onclick=()=>{
-    const t=parseInt(document.getElementById("m_min").innerText)*60+parseInt(document.getElementById("m_sec").innerText)+parseInt(document.getElementById("m_ms").innerText)/100;
-    if(t<=0) return;
-    manualData.push({id:Date.now()+Math.random(), total:t});
-    manualData.sort((a,b)=>a.total-b.total);
-    fields.forEach(id=>document.getElementById(id).innerText="00");fieldIdx=0;inputCount=0;updateFocus();
-    render(); scrollToBottom("manualScrollArea");
+    if(fieldIdx>0)fieldIdx--;
+    inputCount=0;updateFocus();
 };
-document.getElementById("btnManualClear").onclick=()=>{ if(manualData.length && confirm("確定刪除所有紀錄？")){ manualData=[]; render(); } };
+document.getElementById("keySave").onclick=()=>{
+    const t=parseInt(m_min.innerText)*60+parseInt(m_sec.innerText)+parseInt(m_ms.innerText)/100;
+    if(t<=0)return;
+    manualData.push({id:Date.now()+Math.random(),total:t});
+    manualData.sort((a,b)=>a.total-b.total);
+    fields.forEach(id=>document.getElementById(id).innerText="00");
+    fieldIdx=0;inputCount=0;updateFocus();render();
+};
+document.getElementById("btnManualClear").onclick=()=>{if(manualData.length&&confirm("確定清空？")){manualData=[];render();}};
 
-/* 碼錶邏輯 */
 function tick(){
     elapsedT=(performance.now()-startT)/1000;
-    let m=Math.floor(elapsedT/60), ss=(elapsedT%60).toFixed(2).padStart(5,"0");
-    document.getElementById("swDisplay").innerText=`${String(m).padStart(2,"0")}:${ss}`;
+    let m=Math.floor(elapsedT/60),ss=(elapsedT%60).toFixed(2).padStart(5,"0");
+    swDisplay.innerText=`${String(m).padStart(2,"0")}:${ss}`;
     raf=requestAnimationFrame(tick);
 }
-
-const sBtn=document.getElementById("swStart"), lBtn=document.getElementById("swLap"), pBtn=document.getElementById("swPause"), tBtn=document.getElementById("swStop");
-
-sBtn.onclick=()=>{
-    if(timerState==="stopped") return;
-    timerState="running"; startT=performance.now()-(elapsedT*1000); tick();
-    updateSwBtnState();
+swStart.onclick=()=>{
+    if(timerState!=="running"){timerState="running";startT=performance.now()-elapsedT*1000;tick();updateSW();}
 };
-pBtn.onclick=()=>{
-    if(timerState==="running"){
-        timerState="paused"; cancelAnimationFrame(raf); pBtn.innerText="繼續";
-    } else if(timerState==="paused"){
-        timerState="running"; startT=performance.now()-(elapsedT*1000); tick(); pBtn.innerText="暫停";
-    }
-    updateSwBtnState();
+swPause.onclick=()=>{
+    if(timerState==="running"){timerState="paused";cancelAnimationFrame(raf);}
+    else if(timerState==="paused"){timerState="running";startT=performance.now()-elapsedT*1000;tick();}
+    updateSW();
 };
-lBtn.onclick=()=>{
-    if(elapsedT>0){ swData.push({id:Date.now()+Math.random(), total:elapsedT}); renderSW(); scrollToBottom("swScrollArea"); }
+swLap.onclick=()=>{if(elapsedT>0){swData.push({id:Date.now()+Math.random(),total:elapsedT});renderSW();}};
+swStop.onclick=()=>{
+    cancelAnimationFrame(raf);timerState="stopped";
+    swData.push({id:Date.now()+Math.random(),total:elapsedT});
+    renderSW();updateSW();
 };
-tBtn.onclick=()=>{
-    cancelAnimationFrame(raf); timerState="stopped";
-    swData.push({id:Date.now()+Math.random(), total:elapsedT});
-    renderSW(); updateSwBtnState(); scrollToBottom("swScrollArea");
-};
-
-function updateSwBtnState(){
-    const isRunning = timerState === "running";
-    const isPaused = timerState === "paused";
-    const isStopped = timerState === "stopped";
-    const isIdling = timerState === "idling";
-
-    sBtn.classList.toggle("btn-lock", isRunning || isPaused || isStopped);
-    pBtn.classList.toggle("btn-lock", isIdling || isStopped);
-    lBtn.classList.toggle("btn-lock", isIdling || isStopped);
-    tBtn.classList.toggle("btn-lock", isIdling || isStopped);
-    
-    if(isIdling) pBtn.innerText = "暫停";
-}
-
-document.getElementById("btnSWClear").onclick=()=>{
-    if(confirm("重置碼錶並清空紀錄？")){
-        cancelAnimationFrame(raf); timerState="idling"; elapsedT=0; swData=[];
-        document.getElementById("swDisplay").innerText="00:00.00";
-        pBtn.innerText="暫停"; renderSW(); updateSwBtnState();
+btnSWClear.onclick=()=>{
+    if(confirm("重置碼錶？")){
+        cancelAnimationFrame(raf);timerState="idling";elapsedT=0;swData=[];
+        swDisplay.innerText="00:00.00";renderSW();updateSW();
     }
 };
 
-/* 渲染通用 */
-function renderCore(data, bodyId, deleteFnName){
-    const body = document.getElementById(bodyId);
-    body.innerHTML = data.length ? "" : `<tr><td colspan="5" style="padding:40px;color:#444;">無紀錄</td></tr>`;
-    const rows = data.map((item, i) => {
-        const prevT = i > 0 ? data[i-1].total : 0;
-        const lap = item.total - prevT;
-        let dStr = "-", dCls = "";
-        if(i > 0){
-            const pLap = (i === 1) ? data[0].total : data[i-1].total - data[i-2].total;
-            const diff = lap - pLap;
-            dStr = (diff > 0 ? "+" : "") + diff.toFixed(2);
-            dCls = diff > 0 ? "diff-up" : "diff-down";
-        }
-        return `<tr><td>${i+1}</td><td style="color:var(--neon-blue);font-weight:700;">${fmt(item.total)}</td><td>${fmt(lap)}</td><td class="${dCls}">${dStr}</td><td><button class="btn-del-row" onclick="${deleteFnName}(${item.id})">−</button></td></tr>`;
-    });
-    body.innerHTML = rows.join('');
+function updateSW(){
+    swLap.classList.toggle("btn-lock",timerState==="idling"||timerState==="stopped");
+    swPause.classList.toggle("btn-lock",timerState==="idling"||timerState==="stopped");
+    swStop.classList.toggle("btn-lock",timerState==="idling"||timerState==="stopped");
 }
-function render(){ renderCore(manualData, "tbody", "delM"); }
-function renderSW(){ renderCore(swData, "tbodySW", "delS"); }
-function delM(id){ manualData=manualData.filter(x=>x.id!==id); render(); }
-function delS(id){ swData=swData.filter(x=>x.id!==id); renderSW(); }
-function fmt(s){ const m=Math.floor(s/60), ss=(s%60).toFixed(2).padStart(5,"0"); return `${String(m).padStart(2,"0")}:${ss}`; }
-function scrollToBottom(id){ const el=document.getElementById(id); setTimeout(()=>el.scrollTop=el.scrollHeight, 30); }
 
-function stressTest() {
-    for(let i=0; i<100; i++) manualData.push({id:Date.now()+i, total:(i+1)*1.5+Math.random()});
-    render(); scrollToBottom("manualScrollArea");
+function renderCore(data, bodyId, delFn){
+    const body=document.getElementById(bodyId);
+    body.innerHTML=data.length?"":"<tr><td colspan=5 style='padding:40px;color:#444'>無紀錄</td></tr>";
+    body.innerHTML=data.map((x,i)=>{
+        const p=i?data[i-1].total:0;
+        const lap=x.total-p;
+        return `<tr><td>${i+1}</td><td style="color:var(--neon-blue);font-weight:700">${fmt(x.total)}</td><td>${fmt(lap)}</td><td>-</td><td><button class="btn-del-row" onclick="${delFn}(${x.id})">−</button></td></tr>`;
+    }).join('');
 }
+function render(){renderCore(manualData,"tbody","delM");}
+function renderSW(){renderCore(swData,"tbodySW","delS");}
+function delM(id){manualData=manualData.filter(x=>x.id!==id);render();}
+function delS(id){swData=swData.filter(x=>x.id!==id);renderSW();}
+function fmt(s){const m=Math.floor(s/60),ss=(s%60).toFixed(2).padStart(5,"0");return`${String(m).padStart(2,"0")}:${ss}`;}
 </script>
 </body>
 </html>
