@@ -3,27 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>分段記錄器 - 專業效能版</title>
+<title>分段記錄器 - 四鈕平衡版</title>
 <style>
 :root {
     --bg-dark: #0d1117; 
     --panel-dark: #161b22; 
-    --panel-light: #0a0d12;
     --text-light: #fff;
     --neon-blue: #00a2ff;
     --neon-green: #4cd964;
     --neon-red: #ff3b30;
-    --accent: #4ae3ff;
+    --neon-orange: #ff9500;
 }
 
 * { box-sizing: border-box; margin:0; padding:0; touch-action: manipulation; }
 html, body { height: 100dvh; width:100%; background: var(--bg-dark); color: var(--text-light); font-family: -apple-system, system-ui, sans-serif; overflow: hidden; }
-button { cursor: pointer; border: none; }
+button { cursor: pointer; border: none; transition: opacity 0.2s; }
 
 .app-container { display:flex; flex-direction:column; height:100%; width:100%; max-width:800px; margin:0 auto; }
 
 header { display:flex; background:#05070a; border-bottom:2px solid #1a2028; flex-shrink:0; }
-header div.tab-btn { flex:1; text-align:center; padding:15px 0; font-size:14px; font-weight:900; color:#666; border-bottom:3px solid transparent; transition:0.2s; }
+header div.tab-btn { flex:1; text-align:center; padding:15px 0; font-size:14px; font-weight:900; color:#666; border-bottom:3px solid transparent; }
 header div.tab-btn.active { color: var(--neon-blue); border-bottom-color: var(--neon-blue); background: rgba(0,162,255,0.05); }
 
 .content-wrapper { flex:1; display:flex; position:relative; overflow:hidden; }
@@ -32,39 +31,38 @@ header div.tab-btn.active { color: var(--neon-blue); border-bottom-color: var(--
 
 .table-container { flex:1; overflow-y:auto; padding:10px; scroll-behavior: smooth; }
 table { width:100%; border-collapse: collapse; margin-bottom: 20px; }
-th, td { padding:8px 5px; text-align:center; font-size:13px; border-bottom:1px solid #222; }
+th, td { padding:10px 5px; text-align:center; font-size:13px; border-bottom:1px solid #222; }
 th { position:sticky; top:0; background:var(--panel-dark); color:#888; z-index:5; }
-td { color:#eee; }
 
-.control-panel { flex-shrink:0; padding:10px; background: var(--panel-dark); border-top:1px solid #1a2028; display:flex; flex-direction:column; gap:8px; }
-.time-box { display:flex; justify-content:center; align-items:center; gap:4px; margin-bottom: 5px; }
+.control-panel { flex-shrink:0; padding:15px; background: var(--panel-dark); border-top:1px solid #1a2028; display:flex; flex-direction:column; gap:10px; }
+.time-box { display:flex; justify-content:center; align-items:center; gap:4px; }
 .time-input { width:65px; height:45px; line-height:45px; text-align:center; border:1.5px solid #333; border-radius:8px; background:#090c10; font-size:22px; font-weight:700; color:#fff; }
-.time-input.active { border-color: var(--neon-blue); background: #0a0d12; box-shadow: 0 0 10px rgba(0,162,255,0.2); }
+.time-input.active { border-color: var(--neon-blue); }
 
-.keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
 .keypad button { padding:12px; border-radius:8px; font-size:20px; font-weight:600; background:#1c222d; color:#fff; }
 .keypad .k-del { background: #333; color: var(--neon-red); }
 .keypad .k-ok { background: var(--neon-blue); }
 
 .sw-view { text-align:center; padding:10px 0; }
-#swDisplay { font-family:"Courier New", monospace; font-size: clamp(3.5rem,13vw,4.8rem); font-weight:800; font-variant-numeric: tabular-nums; color:#fff; letter-spacing:-2px; }
+#swDisplay { font-family:"Courier New", monospace; font-size: clamp(3.2rem,12vw,4.5rem); font-weight:800; font-variant-numeric: tabular-nums; letter-spacing:-2px; }
 
-.sw-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:5px; }
-.sw-actions button { padding:15px; border-radius:10px; font-size:16px; font-weight:700; color:#fff; }
+/* 修正：四按鈕平均分佈佈局 */
+.sw-actions { display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap:10px; }
+.sw-actions button { padding:18px 0; border-radius:12px; font-size:18px; font-weight:700; color:#fff; width: 100%; }
 .btn-start { background: var(--neon-green); }
-.btn-pause { background: #ff9500; }
 .btn-lap { background: var(--neon-blue); }
+.btn-pause { background: var(--neon-orange); }
 .btn-stop { background: var(--neon-red); }
-.btn-lock { opacity:0.2; pointer-events:none; }
+.btn-lock { opacity: 0.15; pointer-events: none; filter: grayscale(1); }
 
 .btn-del-row { width:24px; height:24px; border-radius:50%; background:#222; color: var(--neon-red); font-weight:bold; }
-.btn-clear-footer { width:100%; padding:15px; background:transparent; color:#888; font-size:12px; border-top: 1px dashed #333; margin-top: 10px; transition: color 0.2s; }
-.btn-clear-footer:active { color: var(--neon-red); }
+.btn-clear-footer { width:100%; padding:15px; background:transparent; color:#555; font-size:12px; border-top: 1px dashed #333; margin-top: 10px; }
 
-.diff-up { color: var(--neon-red); font-weight:600; }
-.diff-down { color: var(--neon-green); font-weight:600; }
+.diff-up { color: var(--neon-red); }
+.diff-down { color: var(--neon-green); }
 
-@media (min-width:768px){ .content-wrapper{flex-direction:row;} .table-container{flex:1.3;} .control-panel{flex:1;} }
+@media (min-width:768px){ .content-wrapper{flex-direction:row;} .table-container{flex:1.2;} .control-panel{flex:0.8;} }
 </style>
 </head>
 <body>
@@ -83,7 +81,7 @@ td { color:#eee; }
                     </thead>
                     <tbody id="tbody"></tbody>
                 </table>
-                <button id="btnManualClear" class="btn-clear-footer">✕ 清空所有紀錄</button>
+                <button id="btnManualClear" class="btn-clear-footer">✕ 清空所有手動紀錄</button>
             </div>
             <div class="control-panel">
                 <div class="time-box">
@@ -97,7 +95,7 @@ td { color:#eee; }
                     <button class="k-num">1</button><button class="k-num">2</button><button class="k-num">3</button>
                     <button class="k-del" id="keyDel">⌫</button><button class="k-num">0</button><button class="k-ok" id="keySave">✓</button>
                 </div>
-                <button onclick="stressTest()" style="font-size: 10px; background: transparent; color: #222; margin-top: 5px;">STRESS TEST</button>
+                <button onclick="stressTest()" style="font-size:10px; background:none; color:#222; margin-top:5px;">STRESS TEST</button>
             </div>
         </div>
 
@@ -109,17 +107,15 @@ td { color:#eee; }
                     </thead>
                     <tbody id="tbodySW"></tbody>
                 </table>
-                <button id="btnSWClear" class="btn-clear-footer">✕ 重置碼錶並清除紀錄</button>
+                <button id="btnSWClear" class="btn-clear-footer">✕ 重置碼錶並清空紀錄</button>
             </div>
             <div class="control-panel">
-                <div class="sw-view">
-                    <div id="swDisplay">00:00.00</div>
-                </div>
+                <div class="sw-view"><div id="swDisplay">00:00.00</div></div>
                 <div class="sw-actions">
                     <button id="swStart" class="btn-start">開始</button>
-                    <button id="swPause" class="btn-pause" style="display:none">暫停</button>
-                    <button id="swLap" class="btn-lap">分段</button>
-                    <button id="swStop" class="btn-stop">結束</button>
+                    <button id="swLap" class="btn-lap btn-lock">分段</button>
+                    <button id="swPause" class="btn-pause btn-lock">暫停</button>
+                    <button id="swStop" class="btn-stop btn-lock">結束</button>
                 </div>
             </div>
         </div>
@@ -128,11 +124,9 @@ td { color:#eee; }
 
 <script>
 let manualData=[], swData=[];
-let fields=["m_min","m_sec","m_ms"];
-let fieldIdx=0, inputCount=0;
+let fields=["m_min","m_sec","m_ms"], fieldIdx=0, inputCount=0;
 let timerState="idling", startT=0, elapsedT=0, raf=null;
 
-/* 分頁切換 */
 function switchTab(tab){
     document.getElementById("tabManual").classList.toggle("active", tab==="manual");
     document.getElementById("tabSW").classList.toggle("active", tab==="sw");
@@ -141,7 +135,7 @@ function switchTab(tab){
     tab === "manual" ? render() : renderSW();
 }
 
-/* 手動輸入鍵盤邏輯 */
+/* 手動輸入 */
 fields.forEach((id,i)=>document.getElementById(id).onclick=()=>{fieldIdx=i;inputCount=0;updateFocus();});
 function updateFocus(){fields.forEach((id,i)=>document.getElementById(id).classList.toggle("active",i===fieldIdx));}
 
@@ -155,60 +149,19 @@ document.querySelectorAll(".k-num").forEach(b=>{
 });
 document.getElementById("keyDel").onclick=()=>{
     document.getElementById(fields[fieldIdx]).innerText="00";
-    inputCount=0;
-    if(fieldIdx>0) fieldIdx--;
-    updateFocus();
+    inputCount=0; if(fieldIdx>0) fieldIdx--; updateFocus();
 }
 document.getElementById("keySave").onclick=()=>{
     const t=parseInt(document.getElementById("m_min").innerText)*60+parseInt(document.getElementById("m_sec").innerText)+parseInt(document.getElementById("m_ms").innerText)/100;
     if(t<=0) return;
-    manualData.push({id:Date.now() + Math.random(), total:t});
+    manualData.push({id:Date.now()+Math.random(), total:t});
     manualData.sort((a,b)=>a.total-b.total);
     fields.forEach(id=>document.getElementById(id).innerText="00");fieldIdx=0;inputCount=0;updateFocus();
-    render();
-    scrollToBottom("manualScrollArea");
+    render(); scrollToBottom("manualScrollArea");
 };
+document.getElementById("btnManualClear").onclick=()=>{ if(manualData.length && confirm("確定刪除所有紀錄？")){ manualData=[]; render(); } };
 
-/* 清空按鈕 */
-document.getElementById("btnManualClear").onclick=()=>{
-    if(manualData.length && confirm("確定刪除所有手動紀錄？")){
-        manualData=[]; render();
-    }
-};
-
-/* 渲染機制 (優化效能) */
-function render(){
-    const body = document.getElementById("tbody");
-    body.innerHTML = manualData.length ? "" : `<tr><td colspan="5" style="padding:40px;color:#555;">無紀錄</td></tr>`;
-    
-    // 預先計算片段以加速渲染
-    const rows = manualData.map((item, i) => {
-        const prevTotal = i > 0 ? manualData[i-1].total : 0;
-        const lap = item.total - prevTotal;
-        let diffStr = "-", diffCls = "";
-        if(i > 0){
-            const prevLap = (i === 1) ? manualData[0].total : manualData[i-1].total - manualData[i-2].total;
-            const diff = lap - prevLap;
-            diffStr = (diff > 0 ? "+" : "") + diff.toFixed(2);
-            diffCls = diff > 0 ? "diff-up" : "diff-down";
-        }
-        return `<tr>
-            <td>${i+1}</td>
-            <td style="color:var(--neon-blue); font-weight:700;">${fmt(item.total)}</td>
-            <td>${fmt(lap)}</td>
-            <td class="${diffCls}">${diffStr}</td>
-            <td><button class="btn-del-row" onclick="deleteManual(${item.id})">−</button></td>
-        </tr>`;
-    });
-    body.innerHTML = rows.join('');
-}
-
-function deleteManual(id){
-    manualData = manualData.filter(x => x.id !== id);
-    render();
-}
-
-/* 碼錶功能 */
+/* 碼錶邏輯 */
 function tick(){
     elapsedT=(performance.now()-startT)/1000;
     let m=Math.floor(elapsedT/60), ss=(elapsedT%60).toFixed(2).padStart(5,"0");
@@ -216,117 +169,80 @@ function tick(){
     raf=requestAnimationFrame(tick);
 }
 
-const btnStart = document.getElementById("swStart");
-const btnPause = document.getElementById("swPause");
+const sBtn=document.getElementById("swStart"), lBtn=document.getElementById("swLap"), pBtn=document.getElementById("swPause"), tBtn=document.getElementById("swStop");
 
-btnStart.onclick=()=>{
-    timerState="running";
-    startT=performance.now()-(elapsedT*1000);
-    tick();
-    btnStart.style.display = "none";
-    btnPause.style.display = "block";
+sBtn.onclick=()=>{
+    if(timerState==="stopped") return;
+    timerState="running"; startT=performance.now()-(elapsedT*1000); tick();
     updateSwBtnState();
 };
-btnPause.onclick=()=>{
-    timerState="paused";
-    cancelAnimationFrame(raf);
-    btnStart.innerText = "繼續";
-    btnStart.style.display = "block";
-    btnPause.style.display = "none";
+pBtn.onclick=()=>{
+    if(timerState==="running"){
+        timerState="paused"; cancelAnimationFrame(raf); pBtn.innerText="繼續";
+    } else if(timerState==="paused"){
+        timerState="running"; startT=performance.now()-(elapsedT*1000); tick(); pBtn.innerText="暫停";
+    }
     updateSwBtnState();
 };
-
-document.getElementById("swLap").onclick=()=>{
-    if(elapsedT>0){
-        swData.push({id:Date.now()+Math.random(), total:elapsedT});
-        renderSW();
-        scrollToBottom("swScrollArea");
-    }
+lBtn.onclick=()=>{
+    if(elapsedT>0){ swData.push({id:Date.now()+Math.random(), total:elapsedT}); renderSW(); scrollToBottom("swScrollArea"); }
 };
-document.getElementById("swStop").onclick=()=>{
-    if(timerState!=="idling"){
-        cancelAnimationFrame(raf);
-        timerState="stopped";
-        swData.push({id:Date.now()+Math.random(), total:elapsedT});
-        renderSW();
-        updateSwBtnState();
-        scrollToBottom("swScrollArea");
-    }
-};
-document.getElementById("btnSWClear").onclick=()=>{
-    if(confirm("重置碼錶？")){
-        cancelAnimationFrame(raf);
-        timerState="idling"; elapsedT=0; swData=[];
-        document.getElementById("swDisplay").innerText="00:00.00";
-        btnStart.innerText = "開始";
-        btnStart.style.display = "block";
-        btnPause.style.display = "none";
-        renderSW(); updateSwBtnState();
-    }
+tBtn.onclick=()=>{
+    cancelAnimationFrame(raf); timerState="stopped";
+    swData.push({id:Date.now()+Math.random(), total:elapsedT});
+    renderSW(); updateSwBtnState(); scrollToBottom("swScrollArea");
 };
 
 function updateSwBtnState(){
-    const stopped = timerState === "stopped";
-    const idling = timerState === "idling";
-    document.getElementById("swLap").classList.toggle("btn-lock", idling || stopped);
-    document.getElementById("swStop").classList.toggle("btn-lock", idling || stopped);
-    btnStart.classList.toggle("btn-lock", stopped);
+    const isRunning = timerState === "running";
+    const isPaused = timerState === "paused";
+    const isStopped = timerState === "stopped";
+    const isIdling = timerState === "idling";
+
+    sBtn.classList.toggle("btn-lock", isRunning || isPaused || isStopped);
+    pBtn.classList.toggle("btn-lock", isIdling || isStopped);
+    lBtn.classList.toggle("btn-lock", isIdling || isStopped);
+    tBtn.classList.toggle("btn-lock", isIdling || isStopped);
+    
+    if(isIdling) pBtn.innerText = "暫停";
 }
 
-function renderSW(){
-    const body=document.getElementById("tbodySW");
-    body.innerHTML= swData.length ? "" : `<tr><td colspan="5" style="padding:40px;color:#555;">無紀錄</td></tr>`;
-    const rows = swData.map((item, i) => {
-        const prevTotal = i > 0 ? swData[i-1].total : 0;
-        const lap = item.total - prevTotal;
-        let diffStr = "-", diffCls = "";
+document.getElementById("btnSWClear").onclick=()=>{
+    if(confirm("重置碼錶並清空紀錄？")){
+        cancelAnimationFrame(raf); timerState="idling"; elapsedT=0; swData=[];
+        document.getElementById("swDisplay").innerText="00:00.00";
+        pBtn.innerText="暫停"; renderSW(); updateSwBtnState();
+    }
+};
+
+/* 渲染通用 */
+function renderCore(data, bodyId, deleteFnName){
+    const body = document.getElementById(bodyId);
+    body.innerHTML = data.length ? "" : `<tr><td colspan="5" style="padding:40px;color:#444;">無紀錄</td></tr>`;
+    const rows = data.map((item, i) => {
+        const prevT = i > 0 ? data[i-1].total : 0;
+        const lap = item.total - prevT;
+        let dStr = "-", dCls = "";
         if(i > 0){
-            const prevLap = (i === 1) ? swData[0].total : swData[i-1].total - swData[i-2].total;
-            const diff = lap - prevLap;
-            diffStr = (diff > 0 ? "+" : "") + diff.toFixed(2);
-            diffCls = diff > 0 ? "diff-up" : "diff-down";
+            const pLap = (i === 1) ? data[0].total : data[i-1].total - data[i-2].total;
+            const diff = lap - pLap;
+            dStr = (diff > 0 ? "+" : "") + diff.toFixed(2);
+            dCls = diff > 0 ? "diff-up" : "diff-down";
         }
-        return `<tr>
-            <td>${i+1}</td>
-            <td style="color:var(--neon-blue); font-weight:700;">${fmt(item.total)}</td>
-            <td>${fmt(lap)}</td>
-            <td class="${diffCls}">${diffStr}</td>
-            <td><button class="btn-del-row" onclick="deleteSW(${item.id})">−</button></td>
-        </tr>`;
+        return `<tr><td>${i+1}</td><td style="color:var(--neon-blue);font-weight:700;">${fmt(item.total)}</td><td>${fmt(lap)}</td><td class="${dCls}">${dStr}</td><td><button class="btn-del-row" onclick="${deleteFnName}(${item.id})">−</button></td></tr>`;
     });
     body.innerHTML = rows.join('');
 }
+function render(){ renderCore(manualData, "tbody", "delM"); }
+function renderSW(){ renderCore(swData, "tbodySW", "delS"); }
+function delM(id){ manualData=manualData.filter(x=>x.id!==id); render(); }
+function delS(id){ swData=swData.filter(x=>x.id!==id); renderSW(); }
+function fmt(s){ const m=Math.floor(s/60), ss=(s%60).toFixed(2).padStart(5,"0"); return `${String(m).padStart(2,"0")}:${ss}`; }
+function scrollToBottom(id){ const el=document.getElementById(id); setTimeout(()=>el.scrollTop=el.scrollHeight, 30); }
 
-function deleteSW(id){
-    swData = swData.filter(x => x.id !== id);
-    renderSW();
-}
-
-function scrollToBottom(id){
-    const el = document.getElementById(id);
-    setTimeout(() => { el.scrollTop = el.scrollHeight; }, 30);
-}
-
-function fmt(s){
-    if(!Number.isFinite(s)) return "00:00.00";
-    const m=Math.floor(s/60), ss=(s%60).toFixed(2).padStart(5,"0");
-    return `${String(m).padStart(2,"0")}:${ss}`;
-}
-
-/* --- 壓力測試功能 (Stress Test) --- */
 function stressTest() {
-    console.time("StressTest");
-    // 模擬快速插入 200 筆數據
-    for(let i=0; i<200; i++) {
-        manualData.push({
-            id: Date.now() + i + Math.random(),
-            total: (i + 1) * 2 + Math.random() 
-        });
-    }
-    render();
-    scrollToBottom("manualScrollArea");
-    console.timeEnd("StressTest");
-    alert("壓力測試完成：已自動產生 200 筆隨機分段紀錄。\n請測試滾動流暢度與清空功能。");
+    for(let i=0; i<100; i++) manualData.push({id:Date.now()+i, total:(i+1)*1.5+Math.random()});
+    render(); scrollToBottom("manualScrollArea");
 }
 </script>
 </body>
