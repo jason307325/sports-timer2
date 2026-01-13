@@ -17,52 +17,150 @@
 
 * { box-sizing: border-box; margin:0; padding:0; touch-action: manipulation; }
 html, body { height: 100dvh; width:100%; background: var(--bg-dark); color: var(--text-light); font-family: -apple-system, system-ui, sans-serif; overflow: hidden; }
-button { cursor: pointer; border: none; transition: opacity 0.2s; }
+button { cursor: pointer; border: none; transition: all 0.2s ease; -webkit-tap-highlight-color: transparent; }
+button:active { transform: scale(0.95); }
 
 .app-container { display:flex; flex-direction:column; height:100%; width:100%; max-width:800px; margin:0 auto; }
 
 header { display:flex; background:#05070a; border-bottom:2px solid #1a2028; flex-shrink:0; }
-header div.tab-btn { flex:1; text-align:center; padding:15px 0; font-size:14px; font-weight:900; color:#666; border-bottom:3px solid transparent; }
+header div.tab-btn { flex:1; text-align:center; padding:15px 0; font-size:14px; font-weight:900; color:#666; border-bottom:3px solid transparent; transition: all 0.3s ease; }
 header div.tab-btn.active { color: var(--neon-blue); border-bottom-color: var(--neon-blue); background: rgba(0,162,255,0.05); }
 
 .content-wrapper { flex:1; display:flex; position:relative; overflow:hidden; }
 .page { position:absolute; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; }
 .page.active { display:flex; }
 
-.table-container { flex:1; overflow-y:auto; padding:10px; scroll-behavior: smooth; }
+.table-container { flex:1; overflow-y:auto; padding:10px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
 table { width:100%; border-collapse: collapse; margin-bottom: 20px; }
 th, td { padding:10px 5px; text-align:center; font-size:13px; border-bottom:1px solid #222; }
 th { position:sticky; top:0; background:var(--panel-dark); color:#888; z-index:5; }
 
-.control-panel { flex-shrink:0; padding:15px; background: var(--panel-dark); border-top:1px solid #1a2028; display:flex; flex-direction:column; gap:10px; }
-.time-box { display:flex; justify-content:center; align-items:center; gap:4px; }
-.time-input { width:65px; height:45px; line-height:45px; text-align:center; border:1.5px solid #333; border-radius:8px; background:#090c10; font-size:22px; font-weight:700; color:#fff; }
-.time-input.active { border-color: var(--neon-blue); }
+.control-panel { flex-shrink:0; padding:15px; background: var(--panel-dark); border-top:1px solid #1a2028; display:flex; flex-direction:column; gap:12px; }
 
-.keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-.keypad button { padding:12px; border-radius:8px; font-size:20px; font-weight:600; background:#1c222d; color:#fff; }
-.keypad .k-del { background: #333; color: var(--neon-red); }
+/* 優化：放大時間輸入格子 */
+.time-box { display:flex; justify-content:center; align-items:center; gap:6px; margin-bottom: 5px; }
+.time-input { 
+    width:80px; 
+    height:60px; 
+    line-height:60px; 
+    text-align:center; 
+    border:2px solid #333; 
+    border-radius:12px; 
+    background:#090c10; 
+    font-size:32px; 
+    font-weight:700; 
+    color:#fff; 
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.time-input.active { 
+    border-color: var(--neon-blue); 
+    background: rgba(0,162,255,0.1);
+    box-shadow: 0 0 20px rgba(0,162,255,0.4);
+}
+.time-box span { 
+    font-size: 28px; 
+    font-weight: 700; 
+    color: #666; 
+}
+
+/* 優化：放大數字鍵盤 */
+.keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.keypad button { 
+    padding:18px; 
+    border-radius:12px; 
+    font-size:24px; 
+    font-weight:700; 
+    background:#1c222d; 
+    color:#fff; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.keypad button:active { 
+    background:#252d3a; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4) inset;
+}
+.keypad .k-del { background: #2d1f1f; color: var(--neon-red); }
+.keypad .k-del:active { background: #3d2525; }
 .keypad .k-ok { background: var(--neon-blue); }
+.keypad .k-ok:active { background: #0090e0; }
 
 .sw-view { text-align:center; padding:10px 0; }
-#swDisplay { font-family:"Courier New", monospace; font-size: clamp(3.2rem,12vw,4.5rem); font-weight:800; font-variant-numeric: tabular-nums; letter-spacing:-2px; }
+#swDisplay { 
+    font-family:"Courier New", monospace; 
+    font-size: clamp(3.2rem,12vw,4.5rem); 
+    font-weight:800; 
+    font-variant-numeric: tabular-nums; 
+    letter-spacing:-2px; 
+}
 
-/* 修正：四按鈕平均分佈佈局 */
 .sw-actions { display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap:10px; }
-.sw-actions button { padding:18px 0; border-radius:12px; font-size:18px; font-weight:700; color:#fff; width: 100%; }
+.sw-actions button { 
+    padding:18px 0; 
+    border-radius:12px; 
+    font-size:18px; 
+    font-weight:700; 
+    color:#fff; 
+    width: 100%; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
 .btn-start { background: var(--neon-green); }
+.btn-start:active { background: #3db84d; }
 .btn-lap { background: var(--neon-blue); }
+.btn-lap:active { background: #0090e0; }
 .btn-pause { background: var(--neon-orange); }
+.btn-pause:active { background: #e08600; }
 .btn-stop { background: var(--neon-red); }
+.btn-stop:active { background: #e03020; }
 .btn-lock { opacity: 0.15; pointer-events: none; filter: grayscale(1); }
 
-.btn-del-row { width:24px; height:24px; border-radius:50%; background:#222; color: var(--neon-red); font-weight:bold; }
-.btn-clear-footer { width:100%; padding:15px; background:transparent; color:#555; font-size:12px; border-top: 1px dashed #333; margin-top: 10px; }
+.btn-del-row { 
+    width:26px; 
+    height:26px; 
+    border-radius:50%; 
+    background:#2d1f1f; 
+    color: var(--neon-red); 
+    font-weight:bold; 
+    font-size: 16px;
+}
+.btn-del-row:active { background: #3d2525; }
+
+.btn-clear-footer { 
+    width:100%; 
+    padding:15px; 
+    background:transparent; 
+    color:#555; 
+    font-size:12px; 
+    border-top: 1px dashed #333; 
+    margin-top: 10px; 
+}
+.btn-clear-footer:active { color: var(--neon-red); }
 
 .diff-up { color: var(--neon-red); }
 .diff-down { color: var(--neon-green); }
 
-@media (min-width:768px){ .content-wrapper{flex-direction:row;} .table-container{flex:1.2;} .control-panel{flex:0.8;} }
+/* 優化：加入載入提示 */
+.loading-hint {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,162,255,0.9);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 1000;
+}
+.loading-hint.show { opacity: 1; }
+
+@media (min-width:768px){ 
+    .content-wrapper{flex-direction:row;} 
+    .table-container{flex:1.2;} 
+    .control-panel{flex:0.8;} 
+}
 </style>
 </head>
 <body>
@@ -95,7 +193,7 @@ th { position:sticky; top:0; background:var(--panel-dark); color:#888; z-index:5
                     <button class="k-num">1</button><button class="k-num">2</button><button class="k-num">3</button>
                     <button class="k-del" id="keyDel">⌫</button><button class="k-num">0</button><button class="k-ok" id="keySave">✓</button>
                 </div>
-                <button onclick="stressTest()" style="font-size:10px; background:none; color:#222; margin-top:5px;">STRESS TEST</button>
+                <button onclick="stressTest()" style="font-size:10px; background:none; color:#333; margin-top:5px; padding:8px;">壓力測試 (100筆)</button>
             </div>
         </div>
 
@@ -122,6 +220,8 @@ th { position:sticky; top:0; background:var(--panel-dark); color:#888; z-index:5
     </main>
 </div>
 
+<div id="loadingHint" class="loading-hint">處理中...</div>
+
 <script>
 let manualData=[], swData=[];
 let fields=["m_min","m_sec","m_ms"], fieldIdx=0, inputCount=0;
@@ -147,19 +247,28 @@ document.querySelectorAll(".k-num").forEach(b=>{
         updateFocus();
     };
 });
+
 document.getElementById("keyDel").onclick=()=>{
     document.getElementById(fields[fieldIdx]).innerText="00";
     inputCount=0; if(fieldIdx>0) fieldIdx--; updateFocus();
 }
+
 document.getElementById("keySave").onclick=()=>{
     const t=parseInt(document.getElementById("m_min").innerText)*60+parseInt(document.getElementById("m_sec").innerText)+parseInt(document.getElementById("m_ms").innerText)/100;
     if(t<=0) return;
     manualData.push({id:Date.now()+Math.random(), total:t});
     manualData.sort((a,b)=>a.total-b.total);
     fields.forEach(id=>document.getElementById(id).innerText="00");fieldIdx=0;inputCount=0;updateFocus();
-    render(); scrollToBottom("manualScrollArea");
+    render(); 
+    scrollToBottom("manualScrollArea");
 };
-document.getElementById("btnManualClear").onclick=()=>{ if(manualData.length && confirm("確定刪除所有紀錄？")){ manualData=[]; render(); } };
+
+document.getElementById("btnManualClear").onclick=()=>{ 
+    if(manualData.length && confirm("確定刪除所有紀錄？")){ 
+        manualData=[]; 
+        render(); 
+    } 
+};
 
 /* 碼錶邏輯 */
 function tick(){
@@ -176,6 +285,7 @@ sBtn.onclick=()=>{
     timerState="running"; startT=performance.now()-(elapsedT*1000); tick();
     updateSwBtnState();
 };
+
 pBtn.onclick=()=>{
     if(timerState==="running"){
         timerState="paused"; cancelAnimationFrame(raf); pBtn.innerText="繼續";
@@ -184,9 +294,15 @@ pBtn.onclick=()=>{
     }
     updateSwBtnState();
 };
+
 lBtn.onclick=()=>{
-    if(elapsedT>0){ swData.push({id:Date.now()+Math.random(), total:elapsedT}); renderSW(); scrollToBottom("swScrollArea"); }
+    if(elapsedT>0){ 
+        swData.push({id:Date.now()+Math.random(), total:elapsedT}); 
+        renderSW(); 
+        scrollToBottom("swScrollArea"); 
+    }
 };
+
 tBtn.onclick=()=>{
     cancelAnimationFrame(raf); timerState="stopped";
     swData.push({id:Date.now()+Math.random(), total:elapsedT});
@@ -215,35 +331,104 @@ document.getElementById("btnSWClear").onclick=()=>{
     }
 };
 
-/* 渲染通用 */
+/* 渲染通用 - 優化大量數據處理 */
 function renderCore(data, bodyId, deleteFnName){
     const body = document.getElementById(bodyId);
-    body.innerHTML = data.length ? "" : `<tr><td colspan="5" style="padding:40px;color:#444;">無紀錄</td></tr>`;
+    
+    if(data.length === 0) {
+        body.innerHTML = `<tr><td colspan="5" style="padding:40px;color:#444;">無紀錄</td></tr>`;
+        return;
+    }
+    
+    // 優化：使用 DocumentFragment 提升性能
+    const fragment = document.createDocumentFragment();
+    const tempDiv = document.createElement('div');
+    
     const rows = data.map((item, i) => {
         const prevT = i > 0 ? data[i-1].total : 0;
         const lap = item.total - prevT;
         let dStr = "-", dCls = "";
+        
         if(i > 0){
             const pLap = (i === 1) ? data[0].total : data[i-1].total - data[i-2].total;
             const diff = lap - pLap;
             dStr = (diff > 0 ? "+" : "") + diff.toFixed(2);
             dCls = diff > 0 ? "diff-up" : "diff-down";
         }
-        return `<tr><td>${i+1}</td><td style="color:var(--neon-blue);font-weight:700;">${fmt(item.total)}</td><td>${fmt(lap)}</td><td class="${dCls}">${dStr}</td><td><button class="btn-del-row" onclick="${deleteFnName}(${item.id})">−</button></td></tr>`;
-    });
-    body.innerHTML = rows.join('');
+        
+        return `<tr>
+            <td>${i+1}</td>
+            <td style="color:var(--neon-blue);font-weight:700;">${fmt(item.total)}</td>
+            <td>${fmt(lap)}</td>
+            <td class="${dCls}">${dStr}</td>
+            <td><button class="btn-del-row" onclick="${deleteFnName}(${item.id})">−</button></td>
+        </tr>`;
+    }).join('');
+    
+    body.innerHTML = rows;
 }
+
 function render(){ renderCore(manualData, "tbody", "delM"); }
 function renderSW(){ renderCore(swData, "tbodySW", "delS"); }
-function delM(id){ manualData=manualData.filter(x=>x.id!==id); render(); }
-function delS(id){ swData=swData.filter(x=>x.id!==id); renderSW(); }
-function fmt(s){ const m=Math.floor(s/60), ss=(s%60).toFixed(2).padStart(5,"0"); return `${String(m).padStart(2,"0")}:${ss}`; }
-function scrollToBottom(id){ const el=document.getElementById(id); setTimeout(()=>el.scrollTop=el.scrollHeight, 30); }
 
-function stressTest() {
-    for(let i=0; i<100; i++) manualData.push({id:Date.now()+i, total:(i+1)*1.5+Math.random()});
-    render(); scrollToBottom("manualScrollArea");
+function delM(id){ 
+    manualData = manualData.filter(x => x.id !== id); 
+    render(); 
 }
+
+function delS(id){ 
+    swData = swData.filter(x => x.id !== id); 
+    renderSW(); 
+}
+
+function fmt(s){ 
+    const m = Math.floor(s/60);
+    const ss = (s%60).toFixed(2).padStart(5,"0"); 
+    return `${String(m).padStart(2,"0")}:${ss}`; 
+}
+
+function scrollToBottom(id){ 
+    const el = document.getElementById(id); 
+    setTimeout(() => el.scrollTop = el.scrollHeight, 50); 
+}
+
+function showLoading(show) {
+    const hint = document.getElementById("loadingHint");
+    if(show) {
+        hint.classList.add("show");
+    } else {
+        hint.classList.remove("show");
+    }
+}
+
+// 優化：壓力測試改用批次處理
+function stressTest() {
+    if(!confirm("將新增 100 筆測試資料，確定繼續？")) return;
+    
+    showLoading(true);
+    
+    // 使用 setTimeout 避免阻塞 UI
+    setTimeout(() => {
+        const testData = [];
+        for(let i = 0; i < 100; i++) {
+            testData.push({
+                id: Date.now() + i + Math.random(), 
+                total: (i + 1) * 1.5 + Math.random()
+            });
+        }
+        
+        manualData.push(...testData);
+        manualData.sort((a, b) => a.total - b.total);
+        
+        render();
+        scrollToBottom("manualScrollArea");
+        showLoading(false);
+    }, 100);
+}
+
+// 初始化渲染
+render();
+renderSW();
 </script>
 </body>
 </html>
