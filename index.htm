@@ -30,90 +30,132 @@ header div.tab-btn.active { color: var(--neon-blue); border-bottom-color: var(--
 .page { position:absolute; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; }
 .page.active { display:flex; }
 
-.table-container { flex:1; overflow-y:auto; padding:10px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
-table { width:100%; border-collapse: collapse; margin-bottom: 20px; }
-th, td { padding:10px 5px; text-align:center; font-size:13px; border-bottom:1px solid #222; }
-th { position:sticky; top:0; background:var(--panel-dark); color:#888; z-index:5; }
+.table-container { 
+    flex: 1; 
+    overflow-y: auto; 
+    padding:10px; 
+    scroll-behavior: smooth; 
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+}
+table { 
+    width:100%; 
+    border-collapse: collapse; 
+    margin-bottom: 20px; 
+}
+thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+th, td { 
+    padding:10px 5px; 
+    text-align:center; 
+    font-size:13px; 
+    border-bottom:1px solid #222; 
+}
+th { 
+    background: var(--panel-dark); 
+    color:#888; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
 
-.control-panel { flex-shrink:0; padding:15px; background: var(--panel-dark); border-top:1px solid #1a2028; display:flex; flex-direction:column; gap:12px; }
+.control-panel { 
+    flex-shrink:0; 
+    padding:12px 15px 15px; /* 減少上方padding */
+    background: var(--panel-dark); 
+    border-top:1px solid #1a2028; 
+    display:flex; 
+    flex-direction:column; 
+    gap:10px; /* 減少間距 */
+}
 
-/* 優化：放大時間輸入格子 */
+/* 時間輸入框 */
 .time-box { 
     display:flex; 
     justify-content:center; 
     align-items:center; 
     gap:6px; 
-    margin-bottom: 5px;
-    height: 80px; /* 增加高度釋放空間 */
+    margin-bottom: 8px;
+    height: 70px; /* 稍微減少高度 */
 }
 .time-input { 
-    width:80px; 
-    height:60px; 
-    line-height:60px; 
+    width:70px; /* 稍微縮小 */
+    height:55px; /* 稍微縮小 */
+    line-height:55px; 
     text-align:center; 
     border:2px solid #333; 
-    border-radius:12px; 
+    border-radius:10px; 
     background:#090c10; 
-    font-size:32px; 
+    font-size:28px; /* 稍微縮小字體 */
     font-weight:700; 
     color:#fff; 
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 .time-input.active { 
     border-color: var(--neon-blue); 
     background: rgba(0,162,255,0.1);
-    box-shadow: 0 0 20px rgba(0,162,255,0.4);
+    box-shadow: 0 0 15px rgba(0,162,255,0.4);
 }
 .time-box span { 
-    font-size: 28px; 
+    font-size: 26px; /* 稍微縮小 */
     font-weight: 700; 
     color: #666; 
 }
 
-/* 優化：放大數字鍵盤 */
+/* 鍵盤縮小 */
 .keypad { 
     display:grid; 
     grid-template-columns:repeat(3,1fr); 
-    gap:10px;
-    margin-top: 15px; /* 增加鍵盤上方的間距 */
+    gap:8px; /* 減少間距 */
 }
 .keypad button { 
-    padding:18px; 
-    border-radius:12px; 
-    font-size:24px; 
+    padding:14px 12px; /* 減少padding */
+    border-radius:10px; 
+    font-size:20px; /* 縮小字體 */
     font-weight:700; 
     background:#1c222d; 
     color:#fff; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 .keypad button:active { 
     background:#252d3a; 
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4) inset;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.4) inset;
 }
 .keypad .k-del { background: #2d1f1f; color: var(--neon-red); }
 .keypad .k-del:active { background: #3d2525; }
 .keypad .k-ok { background: var(--neon-blue); }
 .keypad .k-ok:active { background: #0090e0; }
 
-.sw-view { text-align:center; padding:10px 0; }
+/* 碼錶顯示 */
+.sw-view { 
+    text-align:center; 
+    padding:8px 0; /* 減少padding */
+}
 #swDisplay { 
     font-family:"Courier New", monospace; 
-    font-size: clamp(3.2rem,12vw,4.5rem); 
+    font-size: clamp(3rem,12vw,4.2rem); /* 稍微縮小 */
     font-weight:800; 
     font-variant-numeric: tabular-nums; 
     letter-spacing:-2px; 
 }
 
-.sw-actions { display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap:10px; }
+/* 碼錶按鈕 */
+.sw-actions { 
+    display:grid; 
+    grid-template-columns: 1fr 1fr; 
+    grid-template-rows: 1fr 1fr; 
+    gap:8px; /* 減少間距 */
+}
 .sw-actions button { 
-    padding:18px 0; 
-    border-radius:12px; 
-    font-size:18px; 
+    padding:14px 0; /* 減少padding */
+    border-radius:10px; 
+    font-size:16px; /* 縮小字體 */
     font-weight:700; 
     color:#fff; 
     width: 100%; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 .btn-start { background: var(--neon-green); }
 .btn-start:active { background: #3db84d; }
@@ -125,20 +167,22 @@ th { position:sticky; top:0; background:var(--panel-dark); color:#888; z-index:5
 .btn-stop:active { background: #e03020; }
 .btn-lock { opacity: 0.15; pointer-events: none; filter: grayscale(1); }
 
+/* 刪除按鈕 */
 .btn-del-row { 
-    width:26px; 
-    height:26px; 
+    width:24px; /* 稍微縮小 */
+    height:24px; 
     border-radius:50%; 
     background:#2d1f1f; 
     color: var(--neon-red); 
     font-weight:bold; 
-    font-size: 16px;
+    font-size: 15px;
 }
 .btn-del-row:active { background: #3d2525; }
 
+/* 清除按鈕 */
 .btn-clear-footer { 
     width:100%; 
-    padding:15px; 
+    padding:12px; /* 減少padding */
     background:transparent; 
     color:#555; 
     font-size:12px; 
@@ -147,10 +191,11 @@ th { position:sticky; top:0; background:var(--panel-dark); color:#888; z-index:5
 }
 .btn-clear-footer:active { color: var(--neon-red); }
 
+/* 秒差顏色 */
 .diff-up { color: var(--neon-red); }
 .diff-down { color: var(--neon-green); }
 
-/* 優化：加入載入提示 */
+/* 載入提示 */
 .loading-hint {
     position: fixed;
     bottom: 80px;
@@ -168,10 +213,17 @@ th { position:sticky; top:0; background:var(--panel-dark); color:#888; z-index:5
 }
 .loading-hint.show { opacity: 1; }
 
+/* 桌面版調整 */
 @media (min-width:768px){ 
-    .content-wrapper{flex-direction:row;} 
-    .table-container{flex:1.2;} 
-    .control-panel{flex:0.8;} 
+    .content-wrapper{
+        flex-direction:row;
+    } 
+    .table-container{
+        flex:1.3; /* 增加表格區域比例 */
+    } 
+    .control-panel{
+        flex:0.7; /* 減少控制面板比例 */
+    } 
 }
 </style>
 </head>
@@ -246,7 +298,7 @@ function switchTab(tab){
     tab === "manual" ? render() : renderSW();
 }
 
-/* 手動輸入 - 修復: 防止輸入無效值 */
+/* 手動輸入 */
 fields.forEach((id,i)=>{
     const el = document.getElementById(id);
     el.onclick = () => {
@@ -254,13 +306,6 @@ fields.forEach((id,i)=>{
         inputCount = 0;
         updateFocus();
     };
-    
-    // 防止非數字輸入
-    el.addEventListener('input', (e) => {
-        let value = e.target.innerText.replace(/\D/g, '');
-        if (value.length > 2) value = value.slice(0, 2);
-        e.target.innerText = value.padStart(2, '0');
-    });
 });
 
 function updateFocus(){
@@ -276,15 +321,12 @@ document.querySelectorAll(".k-num").forEach(b=>{
         const currentValue = currentField.innerText;
         
         if(inputCount === 0){
-            // 第一鍵輸入
             currentField.innerText = "0" + b.innerText;
             inputCount = 1;
         } else {
-            // 第二鍵輸入，替換第二個數字
             currentField.innerText = currentValue.charAt(1) + b.innerText;
             inputCount = 0;
             
-            // 自動跳到下一個欄位
             if(fieldIdx < fields.length - 1){
                 fieldIdx++;
                 updateFocus();
@@ -304,12 +346,10 @@ document.getElementById("keyDel").onclick = ()=>{
 };
 
 document.getElementById("keySave").onclick = ()=>{
-    // 獲取並格式化輸入值
     const min = parseInt(document.getElementById("m_min").innerText) || 0;
     const sec = parseInt(document.getElementById("m_sec").innerText) || 0;
     const ms = parseInt(document.getElementById("m_ms").innerText) || 0;
     
-    // 計算總時間（秒）
     const total = min * 60 + sec + ms / 100;
     
     if(total <= 0){
@@ -317,16 +357,13 @@ document.getElementById("keySave").onclick = ()=>{
         return;
     }
     
-    // 添加到數據
     manualData.push({
         id: Date.now() + Math.random(),
         total: total
     });
     
-    // 排序
     manualData.sort((a,b)=> a.total - b.total);
     
-    // 重置輸入框
     fields.forEach(id => {
         document.getElementById(id).innerText = "00";
     });
@@ -334,7 +371,6 @@ document.getElementById("keySave").onclick = ()=>{
     inputCount = 0;
     updateFocus();
     
-    // 渲染和滾動
     render();
     scrollToBottom("manualScrollArea");
 };
@@ -346,7 +382,7 @@ document.getElementById("btnManualClear").onclick = ()=>{
     } 
 };
 
-/* 碼錶邏輯 - 修復: 修正暫停/繼續狀態切換 */
+/* 碼錶邏輯 */
 function tick(){
     elapsedT = (performance.now() - startT) / 1000;
     let m = Math.floor(elapsedT / 60);
@@ -366,7 +402,6 @@ sBtn.onclick = ()=>{
     if(timerState === "stopped") return;
     
     if(timerState === "idling" || timerState === "stopped"){
-        // 第一次開始或重新開始
         timerState = "running";
         startT = performance.now() - (elapsedT * 1000);
         tick();
@@ -376,12 +411,10 @@ sBtn.onclick = ()=>{
 
 pBtn.onclick = ()=>{
     if(timerState === "running"){
-        // 暫停
         timerState = "paused";
         cancelAnimationFrame(raf);
         pBtn.innerText = "繼續";
     } else if(timerState === "paused"){
-        // 繼續
         timerState = "running";
         startT = performance.now() - (elapsedT * 1000);
         tick();
@@ -407,7 +440,6 @@ tBtn.onclick = ()=>{
     cancelAnimationFrame(raf);
     timerState = "stopped";
     
-    // 只有當有時間時才記錄最後一段
     if(elapsedT > 0){
         swData.push({
             id: Date.now() + Math.random(), 
