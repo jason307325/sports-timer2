@@ -38,7 +38,14 @@ th { position:sticky; top:0; background:var(--panel-dark); color:#888; z-index:5
 .control-panel { flex-shrink:0; padding:15px; background: var(--panel-dark); border-top:1px solid #1a2028; display:flex; flex-direction:column; gap:12px; }
 
 /* 優化：放大時間輸入格子 */
-.time-box { display:flex; justify-content:center; align-items:center; gap:6px; margin-bottom: 5px; }
+.time-box { 
+    display:flex; 
+    justify-content:center; 
+    align-items:center; 
+    gap:6px; 
+    margin-bottom: 5px;
+    height: 80px; /* 增加高度釋放空間 */
+}
 .time-input { 
     width:80px; 
     height:60px; 
@@ -65,7 +72,12 @@ th { position:sticky; top:0; background:var(--panel-dark); color:#888; z-index:5
 }
 
 /* 優化：放大數字鍵盤 */
-.keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.keypad { 
+    display:grid; 
+    grid-template-columns:repeat(3,1fr); 
+    gap:10px;
+    margin-top: 15px; /* 增加鍵盤上方的間距 */
+}
 .keypad button { 
     padding:18px; 
     border-radius:12px; 
@@ -193,7 +205,6 @@ th { position:sticky; top:0; background:var(--panel-dark); color:#888; z-index:5
                     <button class="k-num">1</button><button class="k-num">2</button><button class="k-num">3</button>
                     <button class="k-del" id="keyDel">⌫</button><button class="k-num">0</button><button class="k-ok" id="keySave">✓</button>
                 </div>
-                <button onclick="stressTest()" style="font-size:10px; background:none; color:#333; margin-top:5px; padding:8px;">壓力測試 (100筆)</button>
             </div>
         </div>
 
@@ -235,78 +246,178 @@ function switchTab(tab){
     tab === "manual" ? render() : renderSW();
 }
 
-/* 手動輸入 */
-fields.forEach((id,i)=>document.getElementById(id).onclick=()=>{fieldIdx=i;inputCount=0;updateFocus();});
-function updateFocus(){fields.forEach((id,i)=>document.getElementById(id).classList.toggle("active",i===fieldIdx));}
+/* 手動輸入 - 修復: 防止輸入無效值 */
+fields.forEach((id,i)=>{
+    const el = document.getElementById(id);
+    el.onclick = () => {
+        fieldIdx = i;
+        inputCount = 0;
+        updateFocus();
+    };
+    
+    // 防止非數字輸入
+    el.addEventListener('input', (e) => {
+        let value = e.target.innerText.replace(/\D/g, '');
+        if (value.length > 2) value = value.slice(0, 2);
+        e.target.innerText = value.padStart(2, '0');
+    });
+});
+
+function updateFocus(){
+    fields.forEach((id,i)=>{
+        const el = document.getElementById(id);
+        el.classList.toggle("active", i===fieldIdx);
+    });
+}
 
 document.querySelectorAll(".k-num").forEach(b=>{
-    b.onclick=()=>{
-        let f=document.getElementById(fields[fieldIdx]);
-        if(inputCount===0){f.innerText="0"+b.innerText;inputCount=1;}
-        else{f.innerText=f.innerText.charAt(1)+b.innerText;inputCount=0;if(fieldIdx<2) fieldIdx++;}
-        updateFocus();
+    b.onclick = ()=>{
+        const currentField = document.getElementById(fields[fieldIdx]);
+        const currentValue = currentField.innerText;
+        
+        if(inputCount === 0){
+            // 第一鍵輸入
+            currentField.innerText = "0" + b.innerText;
+            inputCount = 1;
+        } else {
+            // 第二鍵輸入，替換第二個數字
+            currentField.innerText = currentValue.charAt(1) + b.innerText;
+            inputCount = 0;
+            
+            // 自動跳到下一個欄位
+            if(fieldIdx < fields.length - 1){
+                fieldIdx++;
+                updateFocus();
+            }
+        }
     };
 });
 
-document.getElementById("keyDel").onclick=()=>{
-    document.getElementById(fields[fieldIdx]).innerText="00";
-    inputCount=0; if(fieldIdx>0) fieldIdx--; updateFocus();
-}
+document.getElementById("keyDel").onclick = ()=>{
+    const currentField = document.getElementById(fields[fieldIdx]);
+    currentField.innerText = "00";
+    inputCount = 0;
+    if(fieldIdx > 0){
+        fieldIdx--;
+        updateFocus();
+    }
+};
 
-document.getElementById("keySave").onclick=()=>{
-    const t=parseInt(document.getElementById("m_min").innerText)*60+parseInt(document.getElementById("m_sec").innerText)+parseInt(document.getElementById("m_ms").innerText)/100;
-    if(t<=0) return;
-    manualData.push({id:Date.now()+Math.random(), total:t});
-    manualData.sort((a,b)=>a.total-b.total);
-    fields.forEach(id=>document.getElementById(id).innerText="00");fieldIdx=0;inputCount=0;updateFocus();
-    render(); 
+document.getElementById("keySave").onclick = ()=>{
+    // 獲取並格式化輸入值
+    const min = parseInt(document.getElementById("m_min").innerText) || 0;
+    const sec = parseInt(document.getElementById("m_sec").innerText) || 0;
+    const ms = parseInt(document.getElementById("m_ms").innerText) || 0;
+    
+    // 計算總時間（秒）
+    const total = min * 60 + sec + ms / 100;
+    
+    if(total <= 0){
+        alert("請輸入有效的時間！");
+        return;
+    }
+    
+    // 添加到數據
+    manualData.push({
+        id: Date.now() + Math.random(),
+        total: total
+    });
+    
+    // 排序
+    manualData.sort((a,b)=> a.total - b.total);
+    
+    // 重置輸入框
+    fields.forEach(id => {
+        document.getElementById(id).innerText = "00";
+    });
+    fieldIdx = 0;
+    inputCount = 0;
+    updateFocus();
+    
+    // 渲染和滾動
+    render();
     scrollToBottom("manualScrollArea");
 };
 
-document.getElementById("btnManualClear").onclick=()=>{ 
-    if(manualData.length && confirm("確定刪除所有紀錄？")){ 
-        manualData=[]; 
+document.getElementById("btnManualClear").onclick = ()=>{ 
+    if(manualData.length > 0 && confirm("確定刪除所有手動紀錄？")){ 
+        manualData = []; 
         render(); 
     } 
 };
 
-/* 碼錶邏輯 */
+/* 碼錶邏輯 - 修復: 修正暫停/繼續狀態切換 */
 function tick(){
-    elapsedT=(performance.now()-startT)/1000;
-    let m=Math.floor(elapsedT/60), ss=(elapsedT%60).toFixed(2).padStart(5,"0");
-    document.getElementById("swDisplay").innerText=`${String(m).padStart(2,"0")}:${ss}`;
-    raf=requestAnimationFrame(tick);
+    elapsedT = (performance.now() - startT) / 1000;
+    let m = Math.floor(elapsedT / 60);
+    let ss = (elapsedT % 60).toFixed(2).padStart(5, "0");
+    document.getElementById("swDisplay").innerText = `${String(m).padStart(2, "0")}:${ss}`;
+    if(timerState === "running"){
+        raf = requestAnimationFrame(tick);
+    }
 }
 
-const sBtn=document.getElementById("swStart"), lBtn=document.getElementById("swLap"), pBtn=document.getElementById("swPause"), tBtn=document.getElementById("swStop");
+const sBtn = document.getElementById("swStart");
+const lBtn = document.getElementById("swLap");
+const pBtn = document.getElementById("swPause");
+const tBtn = document.getElementById("swStop");
 
-sBtn.onclick=()=>{
-    if(timerState==="stopped") return;
-    timerState="running"; startT=performance.now()-(elapsedT*1000); tick();
-    updateSwBtnState();
-};
-
-pBtn.onclick=()=>{
-    if(timerState==="running"){
-        timerState="paused"; cancelAnimationFrame(raf); pBtn.innerText="繼續";
-    } else if(timerState==="paused"){
-        timerState="running"; startT=performance.now()-(elapsedT*1000); tick(); pBtn.innerText="暫停";
+sBtn.onclick = ()=>{
+    if(timerState === "stopped") return;
+    
+    if(timerState === "idling" || timerState === "stopped"){
+        // 第一次開始或重新開始
+        timerState = "running";
+        startT = performance.now() - (elapsedT * 1000);
+        tick();
     }
     updateSwBtnState();
 };
 
-lBtn.onclick=()=>{
-    if(elapsedT>0){ 
-        swData.push({id:Date.now()+Math.random(), total:elapsedT}); 
+pBtn.onclick = ()=>{
+    if(timerState === "running"){
+        // 暫停
+        timerState = "paused";
+        cancelAnimationFrame(raf);
+        pBtn.innerText = "繼續";
+    } else if(timerState === "paused"){
+        // 繼續
+        timerState = "running";
+        startT = performance.now() - (elapsedT * 1000);
+        tick();
+        pBtn.innerText = "暫停";
+    }
+    updateSwBtnState();
+};
+
+lBtn.onclick = ()=>{
+    if(elapsedT > 0 && timerState === "running"){ 
+        swData.push({
+            id: Date.now() + Math.random(), 
+            total: elapsedT
+        }); 
         renderSW(); 
         scrollToBottom("swScrollArea"); 
     }
 };
 
-tBtn.onclick=()=>{
-    cancelAnimationFrame(raf); timerState="stopped";
-    swData.push({id:Date.now()+Math.random(), total:elapsedT});
-    renderSW(); updateSwBtnState(); scrollToBottom("swScrollArea");
+tBtn.onclick = ()=>{
+    if(timerState === "idling") return;
+    
+    cancelAnimationFrame(raf);
+    timerState = "stopped";
+    
+    // 只有當有時間時才記錄最後一段
+    if(elapsedT > 0){
+        swData.push({
+            id: Date.now() + Math.random(), 
+            total: elapsedT
+        });
+        renderSW();
+        scrollToBottom("swScrollArea");
+    }
+    
+    updateSwBtnState();
 };
 
 function updateSwBtnState(){
@@ -317,21 +428,28 @@ function updateSwBtnState(){
 
     sBtn.classList.toggle("btn-lock", isRunning || isPaused || isStopped);
     pBtn.classList.toggle("btn-lock", isIdling || isStopped);
-    lBtn.classList.toggle("btn-lock", isIdling || isStopped);
-    tBtn.classList.toggle("btn-lock", isIdling || isStopped);
+    lBtn.classList.toggle("btn-lock", isIdling || isStopped || isPaused);
+    tBtn.classList.toggle("btn-lock", isIdling);
     
-    if(isIdling) pBtn.innerText = "暫停";
+    if(isIdling || isStopped){
+        pBtn.innerText = "暫停";
+    }
 }
 
-document.getElementById("btnSWClear").onclick=()=>{
-    if(confirm("重置碼錶並清空紀錄？")){
-        cancelAnimationFrame(raf); timerState="idling"; elapsedT=0; swData=[];
-        document.getElementById("swDisplay").innerText="00:00.00";
-        pBtn.innerText="暫停"; renderSW(); updateSwBtnState();
+document.getElementById("btnSWClear").onclick = ()=>{
+    if(swData.length > 0 && confirm("確定重置碼錶並清空所有紀錄？")){
+        cancelAnimationFrame(raf);
+        timerState = "idling";
+        elapsedT = 0;
+        swData = [];
+        document.getElementById("swDisplay").innerText = "00:00.00";
+        pBtn.innerText = "暫停";
+        renderSW();
+        updateSwBtnState();
     }
 };
 
-/* 渲染通用 - 優化大量數據處理 */
+/* 渲染通用 */
 function renderCore(data, bodyId, deleteFnName){
     const body = document.getElementById(bodyId);
     
@@ -340,14 +458,11 @@ function renderCore(data, bodyId, deleteFnName){
         return;
     }
     
-    // 優化：使用 DocumentFragment 提升性能
-    const fragment = document.createDocumentFragment();
-    const tempDiv = document.createElement('div');
-    
     const rows = data.map((item, i) => {
         const prevT = i > 0 ? data[i-1].total : 0;
         const lap = item.total - prevT;
-        let dStr = "-", dCls = "";
+        let dStr = "-";
+        let dCls = "";
         
         if(i > 0){
             const pLap = (i === 1) ? data[0].total : data[i-1].total - data[i-2].total;
@@ -368,8 +483,13 @@ function renderCore(data, bodyId, deleteFnName){
     body.innerHTML = rows;
 }
 
-function render(){ renderCore(manualData, "tbody", "delM"); }
-function renderSW(){ renderCore(swData, "tbodySW", "delS"); }
+function render(){ 
+    renderCore(manualData, "tbody", "delM"); 
+}
+
+function renderSW(){ 
+    renderCore(swData, "tbodySW", "delS"); 
+}
 
 function delM(id){ 
     manualData = manualData.filter(x => x.id !== id); 
@@ -389,46 +509,15 @@ function fmt(s){
 
 function scrollToBottom(id){ 
     const el = document.getElementById(id); 
-    setTimeout(() => el.scrollTop = el.scrollHeight, 50); 
-}
-
-function showLoading(show) {
-    const hint = document.getElementById("loadingHint");
-    if(show) {
-        hint.classList.add("show");
-    } else {
-        hint.classList.remove("show");
-    }
-}
-
-// 優化：壓力測試改用批次處理
-function stressTest() {
-    if(!confirm("將新增 100 筆測試資料，確定繼續？")) return;
-    
-    showLoading(true);
-    
-    // 使用 setTimeout 避免阻塞 UI
     setTimeout(() => {
-        const testData = [];
-        for(let i = 0; i < 100; i++) {
-            testData.push({
-                id: Date.now() + i + Math.random(), 
-                total: (i + 1) * 1.5 + Math.random()
-            });
-        }
-        
-        manualData.push(...testData);
-        manualData.sort((a, b) => a.total - b.total);
-        
-        render();
-        scrollToBottom("manualScrollArea");
-        showLoading(false);
-    }, 100);
+        el.scrollTop = el.scrollHeight;
+    }, 50); 
 }
 
 // 初始化渲染
 render();
 renderSW();
+updateSwBtnState();
 </script>
 </body>
 </html>
